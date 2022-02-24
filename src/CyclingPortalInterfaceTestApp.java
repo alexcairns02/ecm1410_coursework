@@ -27,7 +27,7 @@ public class CyclingPortalInterfaceTestApp {
 		CyclingPortalInterface portal = new BadCyclingPortal();
 
 		assert (portal.getRaceIds().length == 0)
-				: "Innitial SocialMediaPlatform not empty as required or not returning an empty array.";
+				: "Initial SocialMediaPlatform not empty as required or not returning an empty array.";
 
 	}
 
