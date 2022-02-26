@@ -8,7 +8,7 @@ import java.time.LocalTime;
 TODO Attributes for CyclingPortal class:
         ???
 
-TODO Create Riders class:
+TODO Create Rider class:
     Variables:
     riderID (int)
         ???????????????????????????????????
@@ -26,7 +26,7 @@ TODO Create Riders class:
     mountainPointsClassificationRank (dictionary thing?)
         ???????????????????????????????????
 
-    TODO Create Teams class:
+    TODO Create Team class:
     Variables:
     teamID (int)
     teamName (str)
@@ -42,17 +42,9 @@ TODO Create Riders class:
     averageGradient (double)
     segmentLength (double)
 
-    TODO Create Stages class:
-    Variables:
-    stageID (int)
-    stageName (str)
-    stageDescription (str)
-    stageLength (double)
-    stageStartTime (time?)
-    stageType (StageType)
-    segments ([] or <>)
+    
 
-    TODO Create Races class:
+    TODO Create Race class:
     Variables:
     raceID (int)
     raceName (str)
