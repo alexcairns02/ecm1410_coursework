@@ -22,7 +22,7 @@ public class Stage {
     private StageType type;
 
     Stage() {
-        return;
+        
     }
 
     public int getId() {

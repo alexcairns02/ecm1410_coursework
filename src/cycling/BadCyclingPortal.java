@@ -4,13 +4,6 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
-/*
-TODO Attributes for CyclingPortal class:
-        ???
-
-    TODO Implement functionality for each method in BadCyclingPortal
- */
-
 /**
  * BadCyclingPortal is a minimally compiling, but non-functioning implementor
  * of the CyclingPortalInterface interface.
