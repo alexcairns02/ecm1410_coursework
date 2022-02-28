@@ -15,5 +15,25 @@ public class Stage {
     stageType (StageType)
     segments ([] or <>)
     */
-    private int stageID;
+    private int id;
+    private String name;
+    private String description;
+    private double length;
+    private StageType type;
+
+    Stage() {
+        return;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
 }

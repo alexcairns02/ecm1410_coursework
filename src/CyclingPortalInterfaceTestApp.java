@@ -1,7 +1,5 @@
 import cycling.BadCyclingPortal;
-import cycling.BadMiniCyclingPortal;
 import cycling.CyclingPortalInterface;
-import cycling.MiniCyclingPortalInterface;
 
 /**
  * A short program to illustrate an app testing some minimal functionality of a
