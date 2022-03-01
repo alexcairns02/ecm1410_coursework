@@ -15,14 +15,18 @@ public class Stage {
     stageType (StageType)
     segments ([] or <>)
     */
+    private static int noOfStages = 0;
+
     private int id;
     private String name;
     private String description;
     private double length;
     private StageType type;
 
-    Stage() {
-        
+    Stage(String name, String description) {
+        this.name = name;
+        this.description = description;
+        id = noOfStages++;
     }
 
     public int getId() {
@@ -35,5 +39,9 @@ public class Stage {
 
     public String getDescription() {
         return description;
+    }
+
+    public double getLength() {
+        return length;
     }
 }

@@ -14,7 +14,9 @@ import java.util.ArrayList;
 
 public class CyclingPortal implements CyclingPortalInterface {
 
-    public ArrayList<Race> races = new ArrayList<Race>();
+    private ArrayList<Race> races = new ArrayList<Race>();
+
+	private ArrayList<Team> teams = new ArrayList<Team>();
 
 	@Override
 	public int[] getRaceIds() {
@@ -39,14 +41,23 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		for (Race race : races) {
+			if (race.getId() == raceId) {
+				races.remove(race);
+				return;
+			}
+		}
+		throw new IDNotRecognisedException("No race with an ID of " + Integer.toString(raceId) + " exists");
 	}
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return 0;
+		for (Race race : races) {
+			if (race.getId() == raceId) {
+				return race.getNoOfStages();
+			}
+		}
+		throw new IDNotRecognisedException("No race with an ID of " + Integer.toString(raceId) + " exists");
 	}
 
 	@Override
@@ -110,14 +121,28 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int createTeam(String name, String description) throws IllegalNameException, InvalidNameException {
-		// TODO Auto-generated method stub
-		return 0;
+		if (name == null) { throw new IllegalNameException("Team name cannot be null"); }
+		if (name.isEmpty()) { throw new IllegalNameException("Team name cannot be an empty string"); }
+		if (name.length() > 30) { throw new IllegalNameException("Team name cannot be greater than 30 characters"); }
+		for (Team team : teams) {
+			if (team.getName() == name) {
+				throw new IllegalNameException("Team with name \"" + name + "\" already exists");
+			}
+		}
+		Team team = new Team(name, description);
+		teams.add(team);
+		return team.getId();
 	}
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		for (Team team : teams) {
+			if (team.getId() == teamId) {
+				teams.remove(team);
+				return;
+			}
+		}
+		throw new IDNotRecognisedException("No team with an ID of " + Integer.toString(teamId) + " exists");
 	}
 
 	@Override
@@ -136,6 +161,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
 		// TODO Auto-generated method stub
+		Rider rider = new Rider();
 		return 0;
 	}
 

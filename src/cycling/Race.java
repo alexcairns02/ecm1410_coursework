@@ -31,6 +31,14 @@ public class Race {
         teams.add(team);
     }
 
+    public String getDetails() {
+        /*Formatted string containing the race ID, name, description, the
+	    number of stages, and the total length (i.e., the sum of all stages'
+	    length).*/
+        double totalLength = getTotalLength();
+        return null;
+    }
+
     public int getId() {
         return id;
     }
@@ -45,5 +53,13 @@ public class Race {
 
     public int getNoOfStages() {
         return noOfStages;
+    }
+
+    private double getTotalLength() {
+        double totalLength = 0;
+        for (Stage stage : stages) {
+            totalLength += stage.getLength();
+        }
+        return totalLength;
     }
 }
