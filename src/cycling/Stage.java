@@ -1,5 +1,7 @@
 package cycling;
 
+import java.util.ArrayList;
+
 //TODO fill in document
 /**
 
@@ -22,10 +24,13 @@ public class Stage {
     private String description;
     private double length;
     private StageType type;
+    private ArrayList<Segment> segments = new ArrayList<Segment>();
 
-    Stage(String name, String description) {
+    Stage(String name, String description, double length, StageType type) {
         this.name = name;
         this.description = description;
+        this.length = length;
+        this.type = type;
         id = noOfStages++;
     }
 

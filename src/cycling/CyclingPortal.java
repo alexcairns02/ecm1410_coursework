@@ -6,8 +6,11 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 
 /*
+	https://vle.exeter.ac.uk/pluginfile.php/2463307/mod_label/intro/coursework_v2.pdf
+
     TODO Attributes for CyclingPortal class:
-        ???
+        races
+		teams
 
     TODO Implement functionality for each method
  */
@@ -160,9 +163,16 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
-		// TODO Auto-generated method stub
-		Rider rider = new Rider();
-		return 0;
+		if (name == null) { throw new IllegalArgumentException("Rider name cannot be null"); }
+		if (yearOfBirth < 1900) { throw new IllegalArgumentException("Rider yearOfBirth cannot be less than 1900"); }
+		Rider rider = new Rider(name, yearOfBirth);
+		for (Team team : teams) {
+			if (team.getId() == teamID) {
+				team.addRider(rider);
+				return rider.getId();
+			}
+		}
+		throw new IDNotRecognisedException("No team with an ID of " + Integer.toString(teamID) + " exists");
 	}
 
 	@Override
