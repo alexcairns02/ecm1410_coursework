@@ -8,7 +8,7 @@ public class Team {
     private int id;
     private String name;
     private String description;
-    private ArrayList<Rider> riders = new ArrayList<Rider>();
+    private ArrayList<Rider> riders = new ArrayList<>();
 
     Team(String name, String description) {
         this.name = name;
@@ -37,6 +37,8 @@ public class Team {
     }
 
     public Rider[] getRiders() {
-        return riders.toArray();
+        Rider[] riderArr = new Rider[riders.size()];
+        riderArr = riders.toArray(riderArr);
+        return riderArr;
     }
 }
