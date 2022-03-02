@@ -41,8 +41,7 @@ public class Race {
 	    number of stages, and the total length (i.e., the sum of all stages'
 	    length).*/
         double totalLength = getTotalLength();
-        String details = "ID: "+id+" | Name: "+name+" | Description: "+description+" | No. of Stages: "+noOfStages+" | Total Length: "+totalLength;
-        return details;
+        return "ID: "+id+" | Name: "+name+" | Description: "+description+" | No. of Stages: "+noOfStages+" | Total Length: "+totalLength;
     }
 
     public int getId() {
