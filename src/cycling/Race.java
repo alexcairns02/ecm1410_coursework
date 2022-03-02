@@ -62,7 +62,9 @@ public class Race {
     }
 
     public Stage[] getStages() {
-        return stages.toArray();
+        Stage[] stageArr = new Stage[stages.size()];
+        stageArr = stages.toArray(stageArr);
+        return stageArr;
     }
 
     private double getTotalLength() {
