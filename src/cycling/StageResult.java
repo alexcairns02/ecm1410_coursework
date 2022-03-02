@@ -1,4 +1,8 @@
+package cycling;
+
 // Stores the results of stage results
+
+import java.time.LocalTime;
 
 public class StageResult {
     private Stage stage;
