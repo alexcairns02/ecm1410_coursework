@@ -25,10 +25,10 @@ public class Rider {
 
     private static int noOfRiders = 0;
 
-    private int id;
-    private String name;
-    private int yearOfBirth;
-    private ArrayList<StageResult> results = new ArrayList<StageResult>();
+    private final int id;
+    private final String name;
+    private final int yearOfBirth;
+    private ArrayList<StageResult> results = new ArrayList<>();
 
     Rider(String name, int yearOfBirth) {
         this.name = name;
