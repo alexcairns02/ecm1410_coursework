@@ -9,10 +9,6 @@ import java.util.ArrayList;
 /*
 	https://vle.exeter.ac.uk/pluginfile.php/2463307/mod_label/intro/coursework_v2.pdf
 
-    TODO Attributes for CyclingPortal class:
-        races
-		teams
-
     TODO Implement functionality for each method
  */
 
