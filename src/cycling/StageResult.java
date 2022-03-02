@@ -1,9 +1,10 @@
 package cycling;
 
-// Stores the results of stage results
-
 import java.time.LocalTime;
 
+/**
+ * Stores the results of stage results
+ */
 public class StageResult {
     private Stage stage;
     private Rider rider;
