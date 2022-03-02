@@ -1,5 +1,7 @@
 package cycling;
 
+import java.util.ArrayList;
+
 public class Rider {
     /*TODO Variables:
     riderID (int)
