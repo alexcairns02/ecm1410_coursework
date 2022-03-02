@@ -35,4 +35,8 @@ public class Team {
     public String getDescription() {
         return description;
     }
+
+    public Rider[] getRiders() {
+        return riders.toArray();
+    }
 }

@@ -32,14 +32,28 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
-		// TODO Auto-generated method stub
-		return 0;
+        if (name == null) { throw new InvalidNameException("Race name cannot be null"); }
+		if (name.isEmpty()) { throw new InvalidNameException("Race name cannot be an empty string"); }
+		if (name.length() > 30) { throw new InvalidNameException("Race name cannot be greater than 30 characters"); }
+        if (name.contains(" ")) { throw new InvalidNameException("Race name cannot contain white space"); }
+        for (Race race : races) {
+            if (race.getName().eequals(name)) {
+                throw new IllegalNameException("Race name " + name + " already exists");
+            }
+        }
+        Race race = new Race(name, description);
+        races.add(race);
+		return race.getId();
 	}
 
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+        for (Race race : races) {
+			if (race.getId() == raceId) {
+				return race.getDetails();
+			}
+		}
+		throw new IDNotRecognisedException("No race with an ID of " + Integer.toString(raceId) + " exists");
 	}
 
 	@Override
@@ -64,11 +78,16 @@ public class CyclingPortal implements CyclingPortalInterface {
 	}
 
 	@Override
-	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime,
-			StageType type)
+	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime, StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
 		// TODO Auto-generated method stub
-		return 0;
+        Stage stage = new Stage(stageName, description, length, startTime, type);
+        for (Race race : races) {
+			if (race.getId() == raceId) {
+				race.addStage(stage);
+                return stage.getId();
+			}
+		}
 	}
 
 	@Override
@@ -177,8 +196,16 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+        for (Team team : teams) {
+            riders = team.getRiders();
+            for (Rider rider : riders) {
+                if (rider.getID() == riderId) {
+                    team.removeRider(rider);
+                    return;
+                }
+            }
+        }
+        throw new IDNotRecognisedException("No rider with an ID of " + Integer.toString(riderId) + " exists");
 	}
 
 	@Override
@@ -192,6 +219,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public LocalTime[] getRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
+
 		return null;
 	}
 

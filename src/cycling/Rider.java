@@ -26,6 +26,7 @@ public class Rider {
     private int id;
     private String name;
     private int yearOfBirth;
+    private ArrayList<StageResult> results = new ArrayList<StageResult>();
 
     Rider(String name, int yearOfBirth) {
         this.name = name;
@@ -43,5 +44,9 @@ public class Rider {
 
     public int getYearOfBirth() {
         return yearOfBirth;
+    }
+
+    public void addResult(StageResult result) {
+        results.add(result);
     }
 }

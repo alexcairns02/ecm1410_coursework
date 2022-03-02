@@ -25,12 +25,14 @@ public class Stage {
     private double length;
     private StageType type;
     private ArrayList<Segment> segments = new ArrayList<Segment>();
+    private LocalDateTime startTime;
 
-    Stage(String name, String description, double length, StageType type) {
+    Stage(String name, String description, double length, LocalDateTime startTime, StageType type) {
         this.name = name;
         this.description = description;
         this.length = length;
         this.type = type;
+        this.startTime = startTime;
         id = noOfStages++;
     }
 
