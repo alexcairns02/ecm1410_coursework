@@ -1,6 +1,7 @@
 package cycling;
 
 import java.io.IOException;
+import java.net.IDN;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -23,11 +24,11 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getRaceIds() {
-		ArrayList<Integer> ids = new ArrayList<Integer>();
-        for (Race race : races) {
-            ids.add(race.getId());
+        int[] raceIds = new int[races.size()];
+        for (int i=0; i<races.size(); i++) {
+            raceIds[i] = races.get(i).getId();
         }
-		return ids.stream().mapToInt(i -> i).toArray();
+		return raceIds;
 	}
 
 	@Override
@@ -48,33 +49,17 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
-        for (Race race : races) {
-			if (race.getId() == raceId) {
-				return race.getDetails();
-			}
-		}
-		throw new IDNotRecognisedException("No race with an ID of " + Integer.toString(raceId) + " exists");
+        return getRaceById(raceId).getDetails();
 	}
 
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
-		for (Race race : races) {
-			if (race.getId() == raceId) {
-				races.remove(race);
-				return;
-			}
-		}
-		throw new IDNotRecognisedException("No race with an ID of " + Integer.toString(raceId) + " exists");
+		races.remove(getRaceById(raceId));
 	}
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
-		for (Race race : races) {
-			if (race.getId() == raceId) {
-				return race.getNoOfStages();
-			}
-		}
-		throw new IDNotRecognisedException("No race with an ID of " + Integer.toString(raceId) + " exists");
+		return getRaceById(raceId).getNoOfStages();
 	}
 
 	@Override
@@ -170,13 +155,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void removeTeam(int teamId) throws IDNotRecognisedException {
-		for (Team team : teams) {
-			if (team.getId() == teamId) {
-				teams.remove(team);
-				return;
-			}
-		}
-		throw new IDNotRecognisedException("No team with an ID of " + Integer.toString(teamId) + " exists");
+		teams.remove(getTeamById(teamId));
 	}
 
 	@Override
@@ -197,27 +176,13 @@ public class CyclingPortal implements CyclingPortalInterface {
 		if (name == null) { throw new IllegalArgumentException("Rider name cannot be null"); }
 		if (yearOfBirth < 1900) { throw new IllegalArgumentException("Rider yearOfBirth cannot be less than 1900"); }
 		Rider rider = new Rider(name, yearOfBirth);
-		for (Team team : teams) {
-			if (team.getId() == teamID) {
-				team.addRider(rider);
-				return rider.getId();
-			}
-		}
-		throw new IDNotRecognisedException("No team with an ID of " + Integer.toString(teamID) + " exists");
+		getTeamById(teamID).addRider(rider);
+		return rider.getId();
 	}
 
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
-        for (Team team : teams) {
-            Rider[] riders = team.getRiders();
-            for (Rider rider : riders) {
-                if (rider.getId() == riderId) {
-                    team.removeRider(rider);
-                    return;
-                }
-            }
-        }
-        throw new IDNotRecognisedException("No rider with an ID of " + Integer.toString(riderId) + " exists");
+        getTeamByRiderId(riderId).removeRider(getRiderById(riderId));
 	}
 
 	@Override
@@ -351,6 +316,26 @@ public class CyclingPortal implements CyclingPortalInterface {
         throw new IDNotRecognisedException("No stage with an ID of " + Integer.toString(id) + " exists");
     }
 
+	private Team getTeamById(int id) throws IDNotRecognisedException {
+		for (Team team : teams) {
+			if (team.getId() == id) {
+				return team;
+			}
+		}
+		throw new IDNotRecognisedException("No team with an ID of " + Integer.toString(id) + " exists");
+	}
+
+	private Rider getRiderById(int id) throws IDNotRecognisedException {
+		for (Team team : teams) {
+			for (Rider rider : team.getRiders()) {
+				if (rider.getId() == id) {
+					return rider;
+				}
+			}
+		}
+		throw new IDNotRecognisedException("No rider with an ID of " + Integer.toString(id) + " exists");
+	}
+
     private Race getRaceByStageId(int id) throws IDNotRecognisedException {
         for (Race race : races) {
             for (Stage stage : race.getStages()) {
@@ -361,4 +346,15 @@ public class CyclingPortal implements CyclingPortalInterface {
         }
         throw new IDNotRecognisedException("No stage with an ID of " + Integer.toString(id) + " exists");
     }
+
+	private Team getTeamByRiderId(int id) throws IDNotRecognisedException {
+		for (Team team : teams) {
+			for (Rider rider : team.getRiders()) {
+				if (rider.getId() == id) {
+					return team;
+				}
+			}
+		}
+		throw new IDNotRecognisedException("No rider with an ID of " + Integer.toString(id) + " exists");
+	}
 }
