@@ -27,6 +27,11 @@ public class Race {
         noOfStages++;
     }
 
+    public void removeStage(Stage stage) {
+        stages.remove(stage);
+        noOfStages--;
+    }
+
     public void addTeam(Team team) {
         teams.add(team);
     }

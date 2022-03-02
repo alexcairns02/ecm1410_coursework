@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Stream;
 
 /*
 	https://vle.exeter.ac.uk/pluginfile.php/2463307/mod_label/intro/coursework_v2.pdf
@@ -80,32 +81,44 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime, StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
-		// TODO Auto-generated method stub
-        Stage stage = new Stage(stageName, description, length, startTime, type);
+        if (stageName == null) { throw new InvalidNameException("Stage name cannot be null"); }
+		if (stageName.isEmpty()) { throw new InvalidNameException("Stage name cannot be an empty string"); }
+		if (stageName.length() > 30) { throw new InvalidNameException("Stage name cannot be greater than 30 characters"); }
+        if (length<5) { throw new InvalidLengthException("Stage length cannot be less than 5(km)"); }
+        Race raceToAddTo = null;
         for (Race race : races) {
-			if (race.getId() == raceId) {
-				race.addStage(stage);
-                return stage.getId();
-			}
-		}
+            for (Stage stage : stages) {
+                if (stage.getName().equals(stageName)) {
+                    throw new IllegalNameException("Stage name " + stageName + " already exists");
+                }
+            }
+            if (race.getId() == raceId) { raceToAddTo = race; }
+        }
+        if (raceToAddTo == null) { throw new IDNotRecognisedException("No race with an ID of " + Integer.toString(raceId) + " exists"); }
+        Stage stage = new Stage(stageName, description, length, startTime, type);
+        raceToAddTo.addStage(stage);
+        return stage.getId();
 	}
 
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+        Race race = getRaceById(raceId);
+        Stage[] stages = race.getStages();
+        int[] stageIds = [stages.length()];
+        for (int i=0; i<stages.length(); i++) {
+            stageIds[i] = stages[i].getId();
+        }
+		return stageIds;
 	}
 
 	@Override
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return 0;
+		return getStageById(stageId).getLength();
 	}
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		getRaceByStageId(stageId).removeStage(getStageById(stageId));
 	}
 
 	@Override
@@ -318,4 +331,35 @@ public class CyclingPortal implements CyclingPortalInterface {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    private Race getRaceById(int id) throws IDNotRecognisedException {
+        for (Race race : races) {
+			if (race.getId() == id) {
+				return race;
+			}
+		}
+        throw new IDNotRecognisedException("No race with an ID of " + Integer.toString(id) + " exists");
+    }
+
+    private Stage getStageById(int id) throws IDNotRecognisedException {
+        for (Race race : races) {
+            for (Stage stage : race.getStages()) {
+    			if (stage.getId() == id) {
+    				return stage;
+    			}
+    		}
+        }
+        throw new IDNotRecognisedException("No stage with an ID of " + Integer.toString(id) + " exists");
+    }
+
+    private Stage getRaceByStageId(int id) throws IDNotRecognisedException {
+        for (Race race : races) {
+            for (Stage stage : race.getStages()) {
+    			if (stage.getId() == id) {
+    				return race;
+    			}
+    		}
+        }
+        throw new IDNotRecognisedException("No stage with an ID of " + Integer.toString(id) + " exists");
+    }
 }
