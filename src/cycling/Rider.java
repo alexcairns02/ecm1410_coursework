@@ -28,7 +28,7 @@ public class Rider {
     private final int id;
     private final String name;
     private final int yearOfBirth;
-    private ArrayList<StageResult> results = new ArrayList<>();
+    private ArrayList<StageResult> results = new ArrayList<StageResult>();
 
     Rider(String name, int yearOfBirth) {
         this.name = name;

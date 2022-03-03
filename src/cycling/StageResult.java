@@ -6,14 +6,21 @@ import java.time.LocalTime;
  * Stores the results of stage results
  */
 public class StageResult {
+
+    private static int totalResults = 0;
+
+    private int id;
     private Stage stage;
-    private Rider rider;
     private LocalTime time;
 
-    StageResult(Stage stage, Rider rider, LocalTime time) {
+    StageResult(Stage stage, LocalTime time) {
         this.stage = stage;
-        this.rider = rider;
         this.time = time;
+        this.id = totalResults++;
+    }
+
+    public Stage getStage() {
+        return stage;
     }
 
     public LocalTime getTime() {
