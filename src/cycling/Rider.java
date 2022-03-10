@@ -51,4 +51,10 @@ public class Rider {
     public void addResult(StageResult result) {
         results.add(result);
     }
+
+    public StageResult[] getResults() {
+        StageResult[] resultArr = new StageResult[results.size()];
+        resultArr = results.toArray(resultArr);
+        return resultArr;
+    }
 }

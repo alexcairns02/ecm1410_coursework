@@ -25,6 +25,12 @@ public class Segment {
         id = noOfSegments++;
     }
 
+    Segment(double location, SegmentType type) {
+        this.location = location;
+        this.type = type;
+        id = noOfSegments++;
+    }
+
     public int getId() {
         return id;
     }

@@ -74,7 +74,8 @@ public class CyclingPortal implements CyclingPortalInterface {
             if (race.getId() == raceId) { raceToAddTo = race; }
         }
         if (raceToAddTo == null) { throw new IDNotRecognisedException("No race with an ID of " + Integer.toString(raceId) + " exists"); }
-        Stage stage = new Stage(stageName, description, length, startTime, type);
+        Stage stage = new Stage(stageName, description, length, startTime,
+				type);
         raceToAddTo.addStage(stage);
         return stage.getId();
 	}
@@ -104,33 +105,73 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int addCategorizedClimbToStage(int stageId, Double location, SegmentType type, Double averageGradient,
 			Double length) throws IDNotRecognisedException, InvalidLocationException, InvalidStageStateException,
 			InvalidStageTypeException {
-		// TODO Auto-generated method stub
-		return 0;
+		Stage stage = getStageById(stageId);
+		if (stage.isPrepared()) {
+			throw new InvalidStageStateException("Stage is already 'waiting " +
+					"for results'");
+		}
+		if (location > stage.getLength() || location < 0) {
+			throw new InvalidLocationException("Location out of bounds");
+		}
+		if (stage.getType() == StageType.TT) {
+			throw new InvalidStageTypeException("Time-trial stages cannot " +
+					"contain segments");
+		}
+		Segment segment = new Segment(location, type, averageGradient, length);
+
+		stage.addSegment(segment);
+		return segment.getId();
 	}
 
 	@Override
 	public int addIntermediateSprintToStage(int stageId, double location) throws IDNotRecognisedException,
 			InvalidLocationException, InvalidStageStateException, InvalidStageTypeException {
-		// TODO Auto-generated method stub
-		return 0;
+		Stage stage = getStageById(stageId);
+		if (stage.isPrepared()) {
+			throw new InvalidStageStateException("Stage is already 'waiting " +
+					"for results'");
+		}
+		if (location > stage.getLength() || location < 0) {
+			throw new InvalidLocationException("Location out of bounds");
+		}
+		if (stage.getType() == StageType.TT) {
+			throw new InvalidStageTypeException("Time-trial stages cannot " +
+					"contain segments");
+		}
+		Segment segment = new Segment(location, SegmentType.SPRINT);
+		stage.addSegment(segment);
+		return segment.getId();
 	}
 
 	@Override
 	public void removeSegment(int segmentId) throws IDNotRecognisedException, InvalidStageStateException {
-		// TODO Auto-generated method stub
-
+		Stage stage = getStageBySegmentId(segmentId);
+		if (stage.isPrepared()) {
+			throw new InvalidStageStateException("Stage is already 'waiting " +
+					"for results'");
+		}
+		stage.removeSegment(getSegmentById(segmentId));
 	}
 
 	@Override
 	public void concludeStagePreparation(int stageId) throws IDNotRecognisedException, InvalidStageStateException {
-		// TODO Auto-generated method stub
-
+		Stage stage = getStageById(stageId);
+		if (stage.isPrepared()) {
+			throw new InvalidStageStateException("Stage is already 'waiting " +
+					"for results'");
+		}
+		stage.prepare();
 	}
 
 	@Override
 	public int[] getStageSegments(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Stage stage = getStageById(stageId);
+		Segment[] segments = stage.getSegments();
+		int[] segmentIds = new int[segments.length];
+		for (int i=0; i<segments.length; i++) {
+			segmentIds[i] = segments[i].getId();
+		}
+		return segmentIds;
 	}
 
 	@Override
@@ -155,14 +196,21 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getTeams() {
-		// TODO Auto-generated method stub
-		return null;
+		int[] teamIds = new int[teams.size()];
+		for (int i=0; i<teams.size(); i++) {
+			teamIds[i] = teams.get(i).getId();
+		}
+		return teamIds;
 	}
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Rider[] riders = getTeamById(teamId).getRiders();
+		int[] riderIds = new int[riders.length];
+		for (int i=0; i<riders.length; i++) {
+			riderIds[i] = riders[i].getId();
+		}
+		return riderIds;
 	}
 
 	@Override
@@ -184,8 +232,25 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public void registerRiderResultsInStage(int stageId, int riderId, LocalTime... checkpoints)
 			throws IDNotRecognisedException, DuplicatedResultException, InvalidCheckpointsException,
 			InvalidStageStateException {
-		// TODO Auto-generated method stub
-
+		Stage stage = getStageById(stageId);
+		if (stage.isPrepared()) {
+			throw new InvalidStageStateException("Stage is already 'waiting " +
+					"for results'");
+		}
+		if (checkpoints.length != stage.getSegments().length+2) {
+			throw new InvalidCheckpointsException("Number of checkpoints " +
+					"must be number of segments + 2");
+		}
+		StageResult stageResult = new StageResult(stage,
+				checkpoints);
+		Rider rider = getRiderById(riderId);
+		for (StageResult result : rider.getResults()) {
+			if (stage.equals(result.getStage())) {
+				throw new DuplicatedResultException("A result for this stage " +
+						"already exists");
+			}
+		}
+		rider.addResult(stageResult);
 	}
 
 	@Override
@@ -297,7 +362,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 				return race;
 			}
 		}
-        throw new IDNotRecognisedException("No race with an ID of " + Integer.toString(id) + " exists");
+        throw new IDNotRecognisedException("No race with an ID of " + id + " exists");
     }
 
     private Stage getStageById(int id) throws IDNotRecognisedException {
@@ -308,8 +373,21 @@ public class CyclingPortal implements CyclingPortalInterface {
     			}
     		}
         }
-        throw new IDNotRecognisedException("No stage with an ID of " + Integer.toString(id) + " exists");
+        throw new IDNotRecognisedException("No stage with an ID of " + id + " exists");
     }
+
+	private Stage getStageBySegmentId(int id) throws IDNotRecognisedException {
+		for (Race race : races) {
+			for (Stage stage : race.getStages()) {
+				for (Segment segment : stage.getSegments()) {
+					if (segment.getId() == id) {
+						return stage;
+					}
+				}
+			}
+		}
+		throw new IDNotRecognisedException("No segment with an ID of " + id + " exists");
+	}
 
 	private Team getTeamById(int id) throws IDNotRecognisedException {
 		for (Team team : teams) {
@@ -317,7 +395,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 				return team;
 			}
 		}
-		throw new IDNotRecognisedException("No team with an ID of " + Integer.toString(id) + " exists");
+		throw new IDNotRecognisedException("No team with an ID of " + id + " exists");
 	}
 
 	private Rider getRiderById(int id) throws IDNotRecognisedException {
@@ -328,7 +406,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 				}
 			}
 		}
-		throw new IDNotRecognisedException("No rider with an ID of " + Integer.toString(id) + " exists");
+		throw new IDNotRecognisedException("No rider with an ID of " + id + " exists");
 	}
 
     private Race getRaceByStageId(int id) throws IDNotRecognisedException {
@@ -339,7 +417,7 @@ public class CyclingPortal implements CyclingPortalInterface {
     			}
     		}
         }
-        throw new IDNotRecognisedException("No stage with an ID of " + Integer.toString(id) + " exists");
+        throw new IDNotRecognisedException("No stage with an ID of " + id + " exists");
     }
 
 	private Team getTeamByRiderId(int id) throws IDNotRecognisedException {
@@ -350,6 +428,19 @@ public class CyclingPortal implements CyclingPortalInterface {
 				}
 			}
 		}
-		throw new IDNotRecognisedException("No rider with an ID of " + Integer.toString(id) + " exists");
+		throw new IDNotRecognisedException("No rider with an ID of " + id + " exists");
+	}
+
+	private Segment getSegmentById(int id) throws IDNotRecognisedException {
+		for (Race race : races) {
+			for (Stage stage : race.getStages()) {
+				for (Segment segment : stage.getSegments()) {
+					if (segment.getId() == id) {
+						return segment;
+					}
+				}
+			}
+		}
+		throw new IDNotRecognisedException("No segment with an ID of " + id + " exists");
 	}
 }

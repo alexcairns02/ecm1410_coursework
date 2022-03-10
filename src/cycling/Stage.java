@@ -27,13 +27,15 @@ public class Stage {
     private StageType type;
     private ArrayList<Segment> segments = new ArrayList<Segment>();
     private LocalDateTime startTime;
+    private boolean prepared = false;
 
-    Stage(String name, String description, double length, LocalDateTime startTime, StageType type) {
+    Stage(String name, String description, double length,
+          LocalDateTime startTime, StageType type) {
         this.name = name;
         this.description = description;
         this.length = length;
-        this.type = type;
         this.startTime = startTime;
+        this.type = type;
         id = noOfStages++;
     }
 
@@ -51,5 +53,31 @@ public class Stage {
 
     public double getLength() {
         return length;
+    }
+
+    public void addSegment(Segment segment) {
+        segments.add(segment);
+    }
+
+    public void removeSegment(Segment segment) {
+        segments.remove(segment);
+    }
+
+    public StageType getType() {
+        return type;
+    }
+
+    public Segment[] getSegments() {
+        Segment[] segmentArr = new Segment[segments.size()];
+        segmentArr = segments.toArray(segmentArr);
+        return segmentArr;
+    }
+
+    public void prepare() {
+        prepared = true;
+    }
+
+    public boolean isPrepared() {
+        return prepared;
     }
 }

@@ -11,11 +11,11 @@ public class StageResult {
 
     private int id;
     private Stage stage;
-    private LocalTime time;
+    private LocalTime[] checkpoints;
 
-    StageResult(Stage stage, LocalTime time) {
+    StageResult(Stage stage, LocalTime... checkpoints ) {
         this.stage = stage;
-        this.time = time;
+        this.checkpoints = checkpoints;
         this.id = totalResults++;
     }
 
@@ -23,7 +23,7 @@ public class StageResult {
         return stage;
     }
 
-    public LocalTime getTime() {
-        return time;
+    public LocalTime[] getCheckpoints() {
+        return checkpoints;
     }
 }
