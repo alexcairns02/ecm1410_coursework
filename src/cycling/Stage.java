@@ -55,16 +55,20 @@ public class Stage {
         return length;
     }
 
+    public StageType getType() {
+        return type;
+    }
+
+    public boolean isPrepared() {
+        return prepared;
+    }
+
     public void addSegment(Segment segment) {
         segments.add(segment);
     }
 
     public void removeSegment(Segment segment) {
         segments.remove(segment);
-    }
-
-    public StageType getType() {
-        return type;
     }
 
     public Segment[] getSegments() {
@@ -75,9 +79,5 @@ public class Stage {
 
     public void prepare() {
         prepared = true;
-    }
-
-    public boolean isPrepared() {
-        return prepared;
     }
 }

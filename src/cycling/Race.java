@@ -68,8 +68,11 @@ public class Race {
 
     private double getTotalLength() {
         double totalLength = 0;
+        double length;
         for (Stage stage : stages) {
-            totalLength += stage.getLength();
+            length = stage.getLength();
+            assert (length >= 0);
+            totalLength += length;
         }
         return totalLength;
     }

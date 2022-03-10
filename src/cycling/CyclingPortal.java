@@ -316,8 +316,16 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void removeRaceByName(String name) throws NameNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		for (Race race : races) {
+			// Searches through each race until a matching name is found
+			if (race.getName().equals(name)) {
+				// Removes this race from the list
+				races.remove(race);
+				// Exits the method so that the for loop does not continue
+				return;
+			}
+		}
+		throw new NameNotRecognisedException("No race exists with name " + name);
 	}
 
 	@Override
@@ -376,12 +384,12 @@ public class CyclingPortal implements CyclingPortalInterface {
         throw new IDNotRecognisedException("No stage with an ID of " + id + " exists");
     }
 
-	private Stage getStageBySegmentId(int id) throws IDNotRecognisedException {
+	private Segment getSegmentById(int id) throws IDNotRecognisedException {
 		for (Race race : races) {
 			for (Stage stage : race.getStages()) {
 				for (Segment segment : stage.getSegments()) {
 					if (segment.getId() == id) {
-						return stage;
+						return segment;
 					}
 				}
 			}
@@ -420,6 +428,19 @@ public class CyclingPortal implements CyclingPortalInterface {
         throw new IDNotRecognisedException("No stage with an ID of " + id + " exists");
     }
 
+	private Stage getStageBySegmentId(int id) throws IDNotRecognisedException {
+		for (Race race : races) {
+			for (Stage stage : race.getStages()) {
+				for (Segment segment : stage.getSegments()) {
+					if (segment.getId() == id) {
+						return stage;
+					}
+				}
+			}
+		}
+		throw new IDNotRecognisedException("No segment with an ID of " + id + " exists");
+	}
+
 	private Team getTeamByRiderId(int id) throws IDNotRecognisedException {
 		for (Team team : teams) {
 			for (Rider rider : team.getRiders()) {
@@ -429,18 +450,5 @@ public class CyclingPortal implements CyclingPortalInterface {
 			}
 		}
 		throw new IDNotRecognisedException("No rider with an ID of " + id + " exists");
-	}
-
-	private Segment getSegmentById(int id) throws IDNotRecognisedException {
-		for (Race race : races) {
-			for (Stage stage : race.getStages()) {
-				for (Segment segment : stage.getSegments()) {
-					if (segment.getId() == id) {
-						return segment;
-					}
-				}
-			}
-		}
-		throw new IDNotRecognisedException("No segment with an ID of " + id + " exists");
 	}
 }

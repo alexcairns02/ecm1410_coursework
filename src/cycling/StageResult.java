@@ -3,7 +3,7 @@ package cycling;
 import java.time.LocalTime;
 
 /**
- * Stores the results of stage results
+ * A rider's result in a particular stage
  */
 public class StageResult {
 
@@ -17,6 +17,10 @@ public class StageResult {
         this.stage = stage;
         this.checkpoints = checkpoints;
         this.id = totalResults++;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public Stage getStage() {
