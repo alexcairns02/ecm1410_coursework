@@ -39,6 +39,10 @@ public class Stage {
         id = noOfStages++;
     }
 
+    public static void resetNoOfStages() {
+        noOfStages = 0;
+    }
+
     public int getId() {
         return id;
     }

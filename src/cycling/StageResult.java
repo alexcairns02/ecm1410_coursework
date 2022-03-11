@@ -19,6 +19,10 @@ public class StageResult {
         this.id = totalResults++;
     }
 
+    public static void resetTotalResults() {
+        totalResults = 0;
+    }
+
     public int getId() {
         return id;
     }

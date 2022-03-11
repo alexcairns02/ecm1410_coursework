@@ -1,9 +1,14 @@
 package cycling;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 /*
 	https://vle.exeter.ac.uk/pluginfile.php/2463307/mod_label/intro/coursework_v2.pdf
@@ -255,9 +260,14 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public LocalTime[] getRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
-		return null;
+		Rider rider = getRiderById(riderId);
+		StageResult[] results = rider.getResults();
+		for (StageResult result : results) {
+			if (result.getStage().getId() == stageId) {
+				return result.getCheckpoints();
+			}
+		}
+		throw new IDNotRecognisedException("Rider " + riderId + "does not have any results in stage " + stageId);
 	}
 
 	@Override
@@ -268,14 +278,42 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void deleteRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-
+		Rider rider = getRiderById(riderId);
+		StageResult[] results = rider.getResults();
+		for (StageResult result : results) {
+			if (result.getStage().getId() == stageId) {
+				rider.removeResult(result);
+				return;
+			}
+		}
+		throw new IDNotRecognisedException("Rider " + riderId + "does not have any results in stage " + stageId);
 	}
 
 	@Override
 	public int[] getRidersRankInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		HashMap<Rider, LocalTime> riderToResultMap = new HashMap<Rider, LocalTime>();
+		Stage stage = getStageById(stageId);
+		for (Team team : teams) {
+			for (Rider rider : team.getRiders()) {
+				for (StageResult result : rider.getResults()) {
+					if (result.getStage().equals(stage)) {
+						LocalTime[] checkpoints = result.getCheckpoints();
+						riderToResultMap.put(rider, checkpoints[checkpoints.length-1]);
+					}
+				}
+			}
+		}
+		HashMap<Rider, LocalTime> sortedMap = riderToResultMap.entrySet().stream()
+											.sorted(Entry.comparingByValue())
+											.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
+												(e1, e2) -> e1, LinkedHashMap::new));
+		int[] rankedRiders = new int[sortedMap.size()];
+		int i = 0;
+		for (Rider rider : sortedMap.keySet()) {
+			rankedRiders[i] = rider.getId();
+			i++;
+		}
+		return rankedRiders;
 	}
 
 	@Override
@@ -298,8 +336,14 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void eraseCyclingPortal() {
-		// TODO Auto-generated method stub
-
+		Team.resetNoOfTeams();
+		Rider.resetNoOfRiders();
+		Race.resetNoOfRaces();
+		Stage.resetNoOfStages();
+		Segment.resetNoOfSegments();
+		StageResult.resetTotalResults();
+		teams.clear();
+		races.clear();
 	}
 
 	@Override

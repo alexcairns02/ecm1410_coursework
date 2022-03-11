@@ -36,6 +36,10 @@ public class Rider {
         id = noOfRiders++;
     }
 
+    public static void resetNoOfRiders() {
+        noOfRiders = 0;
+    }
+
     public int getId() {
         return id;
     }
@@ -50,6 +54,10 @@ public class Rider {
 
     public void addResult(StageResult result) {
         results.add(result);
+    }
+
+    public void removeResult(StageResult result) {
+        results.remove(result);
     }
 
     public StageResult[] getResults() {

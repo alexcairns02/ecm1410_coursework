@@ -16,6 +16,10 @@ public class Team {
         id = noOfTeams++;
     }
 
+    public static void resetNoOfTeams() {
+        noOfTeams = 0;
+    }
+
     public void addRider(Rider rider) {
         riders.add(rider);
     }

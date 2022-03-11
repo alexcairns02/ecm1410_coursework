@@ -16,10 +16,14 @@ public class Race {
     private ArrayList<Stage> stages = new ArrayList<Stage>();
     private ArrayList<Team> teams = new ArrayList<Team>();
 
-    public Race(String name, String description) {
+    Race(String name, String description) {
         this.name = name;
         this.description = description;
         id = numberOfRaces++;
+    }
+
+    public static void resetNoOfRaces() {
+        numberOfRaces = 0;
     }
 
     public void addStage(Stage stage) {
@@ -41,7 +45,8 @@ public class Race {
 	    number of stages, and the total length (i.e., the sum of all stages'
 	    length).*/
         double totalLength = getTotalLength();
-        return "ID: "+id+" | Name: "+name+" | Description: "+description+" | No. of Stages: "+noOfStages+" | Total Length: "+totalLength;
+        return "ID: "+id+" | Name: "+name+" | Description: "+description
+                +" | No. of Stages: "+noOfStages+" | Total Length: "+totalLength;
     }
 
     public int getId() {

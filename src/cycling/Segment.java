@@ -24,6 +24,10 @@ public class Segment {
         id = noOfSegments++;
     }
 
+    public static void resetNoOfSegments() {
+        noOfSegments = 0;
+    }
+
     public int getId() {
         return id;
     }
