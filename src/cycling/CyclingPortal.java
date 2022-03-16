@@ -302,14 +302,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 			if (result.getStage() == stage) {
 				LocalTime[] checkpoints = result.getCheckpoints();
 				//TODO Adjusted elapsed time
-				long elapsedTimeInSecs = checkpoints[0].until(checkpoints[checkpoints.length-1], ChronoUnit.SECONDS);
-				int hours = (int) elapsedTimeInSecs / 3600;
-				int remainder = (int) elapsedTimeInSecs - hours*3600;
-				int mins = remainder / 60;
-				remainder -= mins*60;
-				int secs = remainder;
-				LocalTime time = LocalTime.of(hours, mins, secs);
-				return time;
+				return timeDifference(checkpoints[0], checkpoints[checkpoints.length-1]);
 			}
 		}
 		return null;
@@ -419,14 +412,9 @@ public class CyclingPortal implements CyclingPortalInterface {
 				for (StageResult result : rider.getResults()) {
 					if (result.getStage().equals(stage)) {
 						LocalTime[] checkpoints = result.getCheckpoints();
-						long elapsedTimeInSecs = checkpoints[i].until(checkpoints[i+1], ChronoUnit.SECONDS);
-						int hours = (int) elapsedTimeInSecs / 3600;
-						int remainder = (int) elapsedTimeInSecs - hours*3600;
-						int mins = remainder / 60;
-						remainder -= mins*60;
-						int secs = remainder;
-						LocalTime segmentTime = LocalTime.of(hours, mins, secs);
+						LocalTime segmentTime = timeDifference(checkpoints[i], checkpoints[i+1]);
 						resultToTimeMap.put(rider, segmentTime);
+						break;
 					}
 				}
 			}
@@ -436,7 +424,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 													(e1, e2) -> e1, LinkedHashMap::new));
 			int a = 0;
 			for (Rider rider : sortedMap.keySet()) {
-				for (int b=0;b<ridersInStage.length;b++) {
+				for (int b=0;b<8;b++) {
 					if (ridersInStage[b].equals(rider)) {
 						switch (type) {
 							case C4:
@@ -562,6 +550,16 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	public ArrayList<Race> getRacesList() {
 		return races;
+	}
+
+	private LocalTime timeDifference(LocalTime time1, LocalTime time2) {
+		long elapsedTimeInSecs = time1.until(time2, ChronoUnit.SECONDS);
+		int hours = (int) elapsedTimeInSecs / 3600;
+		int remainder = (int) elapsedTimeInSecs - hours*3600;
+		int mins = remainder / 60;
+		remainder -= mins*60;
+		int secs = remainder;
+		return LocalTime.of(hours, mins, secs);
 	}
 
     private Race getRaceById(int id) throws IDNotRecognisedException {
