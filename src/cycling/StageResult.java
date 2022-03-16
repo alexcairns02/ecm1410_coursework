@@ -13,7 +13,7 @@ public class StageResult {
     private Stage stage;
     private LocalTime[] checkpoints;
 
-    StageResult(Stage stage, LocalTime... checkpoints ) {
+    StageResult(Stage stage, LocalTime... checkpoints) {
         this.stage = stage;
         this.checkpoints = checkpoints;
         this.id = totalResults++;

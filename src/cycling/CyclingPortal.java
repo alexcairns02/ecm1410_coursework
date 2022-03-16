@@ -1,6 +1,11 @@
 package cycling;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -348,14 +353,30 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void saveCyclingPortal(String filename) throws IOException {
-		// TODO Auto-generated method stub
-
+		ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename));
+		try {
+			oos.writeObject(this);
+		} finally {
+			oos.close();
+		}
 	}
 
 	@Override
 	public void loadCyclingPortal(String filename) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
-
+		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename));
+		try {
+			Object obj = ois.readObject();
+			CyclingPortal cyclingPortal;
+			if (obj instanceof CyclingPortal) {
+				cyclingPortal = (CyclingPortal)obj;
+				// Replaces this object attributes with those of loaded CyclingPortal
+				teams = cyclingPortal.getTeamsList();
+				races = cyclingPortal.getRacesList();
+			}
+			// TODO: Handle case where obj is not a CyclingPortal but is an object
+		} finally {
+			ois.close();
+		}
 	}
 
 	@Override
@@ -406,6 +427,14 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int[] getRidersMountainPointClassificationRank(int raceId) throws IDNotRecognisedException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public ArrayList<Team> getTeamsList() {
+		return teams;
+	}
+
+	public ArrayList<Race> getRacesList() {
+		return races;
 	}
 
     private Race getRaceById(int id) throws IDNotRecognisedException {
