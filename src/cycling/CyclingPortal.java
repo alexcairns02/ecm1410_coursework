@@ -4,12 +4,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.Array;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
@@ -22,6 +22,25 @@ import java.util.stream.Collectors;
  */
 
 public class CyclingPortal implements CyclingPortalInterface {
+
+	// pointsTable[type][rank]
+	private final int[][] pointsTable = {
+		{50, 30, 20, 18, 16, 14, 12, 10, 8, 7, 6, 5, 4, 3, 2},
+		{30, 25, 22, 19, 17, 15, 13, 11, 9, 7, 6, 5, 4, 3, 2},
+		{20, 17, 15, 13, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1}
+	};
+
+	// mountainPointsTable[rank][type]
+	private final int[][] mountainPointsTable = {
+		{1, 2, 5, 10, 20},
+		{0, 1, 3, 8, 15},
+		{0, 0, 2, 6, 12},
+		{0, 0, 1, 4, 10},
+		{0, 0, 0, 2, 8},
+		{0, 0, 0, 1, 6},
+		{0, 0, 0, 0, 4},
+		{0, 0, 0, 0, 2}
+	};
 
     private ArrayList<Race> races = new ArrayList<Race>();
 
@@ -277,7 +296,22 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public LocalTime getRiderAdjustedElapsedTimeInStage(int stageId, int riderId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
+		Rider rider = getRiderById(riderId);
+		Stage stage = getStageById(stageId);
+		for (StageResult result : rider.getResults()) {
+			if (result.getStage() == stage) {
+				LocalTime[] checkpoints = result.getCheckpoints();
+				//TODO Adjusted elapsed time
+				long elapsedTimeInSecs = checkpoints[0].until(checkpoints[checkpoints.length-1], ChronoUnit.SECONDS);
+				int hours = (int) elapsedTimeInSecs / 3600;
+				int remainder = (int) elapsedTimeInSecs - hours*3600;
+				int mins = remainder / 60;
+				remainder -= mins*60;
+				int secs = remainder;
+				LocalTime time = LocalTime.of(hours, mins, secs);
+				return time;
+			}
+		}
 		return null;
 	}
 
@@ -302,8 +336,8 @@ public class CyclingPortal implements CyclingPortalInterface {
 			for (Rider rider : team.getRiders()) {
 				for (StageResult result : rider.getResults()) {
 					if (result.getStage().equals(stage)) {
-						LocalTime[] checkpoints = result.getCheckpoints();
-						riderToResultMap.put(rider, checkpoints[checkpoints.length-1]);
+						LocalTime elapsedTime = getRiderAdjustedElapsedTimeInStage(stageId, rider.getId());
+						riderToResultMap.put(rider, elapsedTime);
 					}
 				}
 			}
@@ -323,20 +357,113 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public LocalTime[] getRankedAdjustedElapsedTimesInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		int[] rankedRiderIds = getRidersRankInStage(stageId);
+		LocalTime[] rankedTimes = new LocalTime[rankedRiderIds.length];
+		for (int i=0;i<rankedRiderIds.length;i++) {
+			rankedTimes[i] = getRiderAdjustedElapsedTimeInStage(stageId, rankedRiderIds[i]);
+		}
+		return rankedTimes;
 	}
 
 	@Override
 	public int[] getRidersPointsInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		int[] rankedRiders = getRidersRankInStage(stageId);
+		StageType type = getStageById(stageId).getType();
+		int[] points = new int[rankedRiders.length];
+		for (int i=0;i<points.length;i++) {
+			switch (type) {
+				case FLAT:
+					if (i > 14) {
+						points[i] = 0;
+					} else {
+						points[i] = pointsTable[0][i];
+					}
+					break;
+				case MEDIUM_MOUNTAIN:
+					if (i > 14) {
+						points[i] = 0;
+					} else {
+						points[i] = pointsTable[1][i];
+					}
+					break;
+				default: // HIGH_MOUNTAIN or TT
+					if (i > 14) {
+						points[i] = 0;
+					} else {
+						points[i] = pointsTable[2][i];
+					}
+					break;
+			}
+		}
+		return points;
 	}
 
 	@Override
 	public int[] getRidersMountainPointsInStage(int stageId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Stage stage = getStageById(stageId);
+		Segment[] segments = stage.getSegments();
+		int[] ridersRanks = getRidersRankInStage(stageId);
+		Rider[] ridersInStage = new Rider[ridersRanks.length];
+		for (int i=0;i<ridersInStage.length;i++) {
+			ridersInStage[i] = getRiderById(ridersRanks[i]);
+		}
+		int[] mountainPoints = new int[ridersInStage.length];
+		Arrays.fill(mountainPoints, 0);
+		for (int i=0;i<segments.length;i++) {
+			SegmentType type = segments[i].getType();
+			if (type == SegmentType.SPRINT) {
+				continue;
+			}
+			HashMap<Rider, LocalTime> resultToTimeMap = new HashMap<Rider, LocalTime>();
+			for (Rider rider : ridersInStage) {
+				for (StageResult result : rider.getResults()) {
+					if (result.getStage().equals(stage)) {
+						LocalTime[] checkpoints = result.getCheckpoints();
+						long elapsedTimeInSecs = checkpoints[i].until(checkpoints[i+1], ChronoUnit.SECONDS);
+						int hours = (int) elapsedTimeInSecs / 3600;
+						int remainder = (int) elapsedTimeInSecs - hours*3600;
+						int mins = remainder / 60;
+						remainder -= mins*60;
+						int secs = remainder;
+						LocalTime segmentTime = LocalTime.of(hours, mins, secs);
+						resultToTimeMap.put(rider, segmentTime);
+					}
+				}
+			}
+			HashMap<Rider, LocalTime> sortedMap = resultToTimeMap.entrySet().stream()
+												.sorted(Entry.comparingByValue())
+												.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
+													(e1, e2) -> e1, LinkedHashMap::new));
+			int a = 0;
+			for (Rider rider : sortedMap.keySet()) {
+				for (int b=0;b<ridersInStage.length;b++) {
+					if (ridersInStage[b].equals(rider)) {
+						switch (type) {
+							case C4:
+								mountainPoints[b] += mountainPointsTable[a][0];
+								break;
+							case C3:
+								mountainPoints[b] += mountainPointsTable[a][1];
+								break;
+							case C2:
+								mountainPoints[b] += mountainPointsTable[a][2];
+								break;
+							case C1:
+								mountainPoints[b] += mountainPointsTable[a][3];
+								break;
+							case HC:
+								mountainPoints[b] += mountainPointsTable[a][4];
+								break;
+							default:
+								assert (false);
+						}
+						break;
+					}
+				}
+				a++;
+			}
+		}
+		return mountainPoints;
 	}
 
 	@Override
