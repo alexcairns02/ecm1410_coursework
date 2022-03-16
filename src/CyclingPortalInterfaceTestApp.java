@@ -32,6 +32,7 @@ public class CyclingPortalInterfaceTestApp {
 		assert (portal.getRaceIds().length == 0)
 				: "Initial SocialMediaPlatform not empty as required or not returning an empty array.";
 
+		// Testing Race Creation
 		try {
 			portal.createRace("Firstrace", "A description");
 			portal.createRace("Secondrace", "Another description");
@@ -44,6 +45,8 @@ public class CyclingPortalInterfaceTestApp {
 			System.out.println(""+portal.getRaceIds().length);
 			System.out.println(Arrays.toString(portal.getRaceIds()));
 		}
+
+		// Testing Stage Creation
 		try {
 			portal.addStageToRace(1, "First stage", "The first stage", 10, LocalDateTime.now(), StageType.FLAT);
 			portal.addStageToRace(0, "First stage different race", "The first stage", 10, LocalDateTime.now(), StageType.MEDIUM_MOUNTAIN);
@@ -53,5 +56,7 @@ public class CyclingPortalInterfaceTestApp {
 		} catch (Exception e) {
 			System.out.println(e);
 		}
+
+		//
 	}
 }
