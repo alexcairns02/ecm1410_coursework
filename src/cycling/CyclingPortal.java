@@ -8,10 +8,7 @@ import java.io.ObjectOutputStream;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -510,38 +507,211 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public LocalTime[] getGeneralClassificationTimesInRace(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Race race = getRaceById(raceId);
+		Stage[] stages = race.getStages();
+		ArrayList<Rider> riders = new ArrayList<Rider>();
+		for (Stage stage : stages) {
+			for (Team team : teams) {
+				for (Rider rider : team.getRiders()) {
+					for (StageResult result : rider.getResults()) {
+						if (result.getStage().equals(stage) && !riders.contains(rider)) {
+							riders.add(rider);
+						}
+					}
+				}
+			}
+		}
+		Map<Rider, LocalTime> riderTimes = new HashMap<Rider, LocalTime>();
+		for (Rider rider : riders) {
+			riderTimes.put(rider, LocalTime.of(0, 0, 0));
+			for (Stage stage : stages) {
+				LocalTime t = getRiderAdjustedElapsedTimeInStage(stage.getId(),
+						rider.getId());
+				riderTimes.replace(rider,
+						riderTimes.get(rider).plusHours(t.getHour())
+								.plusMinutes(t.getMinute())
+								.plusSeconds(t.getSecond()) );
+			}
+		}
+		HashMap<Rider, LocalTime> sortedMap = riderTimes.entrySet().stream()
+				.sorted(Entry.comparingByValue())
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
+						(e1, e2) -> e1, LinkedHashMap::new));
+		LocalTime[] times = new LocalTime[riders.size()];
+		sortedMap.values().toArray(times);
+		return times;
 	}
 
 	@Override
 	public int[] getRidersPointsInRace(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Race race = getRaceById(raceId);
+		Stage[] stages = race.getStages();
+		ArrayList<Rider> riders = new ArrayList<Rider>();
+		for (Stage stage : stages) {
+			for (Team team : teams) {
+				for (Rider rider : team.getRiders()) {
+					for (StageResult result : rider.getResults()) {
+						if (result.getStage().equals(stage) && !riders.contains(rider)) {
+							riders.add(rider);
+						}
+					}
+				}
+			}
+		}
+		Map<Rider, Integer> riderPoints = new HashMap<Rider, Integer>();
+		for (Rider rider : riders) {
+			riderPoints.put(rider, 0);
+			for (Stage stage : stages) {
+				int[] ranks = getRidersRankInStage(stage.getId());
+				int index = 0;
+				for (int i=0; i<ranks.length; i++) {
+					if (ranks[i] == rider.getId()) {
+						index = i;
+					}
+				}
+				int points = getRidersPointsInStage(stage.getId())[index];
+				riderPoints.replace(rider, riderPoints.get(rider) + points);
+			}
+		}
+		int[] sortedPoints = new int[riders.size()];
+		int[] riderRanks = getRidersGeneralClassificationRank(raceId);
+		for ( int i=0; i<riderRanks.length; i++ ) {
+			sortedPoints[i] = riderPoints.get(getRiderById(riderRanks[i]));
+		}
+		return sortedPoints;
 	}
 
 	@Override
 	public int[] getRidersMountainPointsInRace(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Race race = getRaceById(raceId);
+		Stage[] stages = race.getStages();
+		ArrayList<Rider> riders = new ArrayList<Rider>();
+		for (Stage stage : stages) {
+			for (Team team : teams) {
+				for (Rider rider : team.getRiders()) {
+					for (StageResult result : rider.getResults()) {
+						if (result.getStage().equals(stage) && !riders.contains(rider)) {
+							riders.add(rider);
+						}
+					}
+				}
+			}
+		}
+		Map<Rider, Integer> riderPoints = new HashMap<Rider, Integer>();
+		for (Rider rider : riders) {
+			riderPoints.put(rider, 0);
+			for (Stage stage : stages) {
+				int[] ranks = getRidersRankInStage(stage.getId());
+				int index = 0;
+				for (int i=0; i<ranks.length; i++) {
+					if (ranks[i] == rider.getId()) {
+						index = i;
+					}
+				}
+				int points =
+						getRidersMountainPointsInStage(stage.getId())[index];
+				riderPoints.replace(rider, riderPoints.get(rider) + points);
+			}
+		}
+		int[] sortedPoints = new int[riders.size()];
+		int[] riderRanks = getRidersGeneralClassificationRank(raceId);
+		for ( int i=0; i<riderRanks.length; i++ ) {
+			sortedPoints[i] = riderPoints.get(getRiderById(riderRanks[i]));
+		}
+		return sortedPoints;
 	}
 
 	@Override
 	public int[] getRidersGeneralClassificationRank(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		Race race = getRaceById(raceId);
+		Stage[] stages = race.getStages();
+		ArrayList<Rider> riders = new ArrayList<Rider>();
+		for (Stage stage : stages) {
+			for (Team team : teams) {
+				for (Rider rider : team.getRiders()) {
+					for (StageResult result : rider.getResults()) {
+						if (result.getStage().equals(stage) && !riders.contains(rider)) {
+							riders.add(rider);
+						}
+					}
+				}
+			}
+		}
+		Map<Rider, LocalTime> riderTimes = new HashMap<Rider, LocalTime>();
+		for (Rider rider : riders) {
+			riderTimes.put(rider, LocalTime.of(0, 0, 0));
+			for (Stage stage : stages) {
+				LocalTime t = getRiderAdjustedElapsedTimeInStage(stage.getId(),
+						rider.getId());
+				riderTimes.replace(rider,
+						riderTimes.get(rider).plusHours(t.getHour())
+								.plusMinutes(t.getMinute())
+								.plusSeconds(t.getSecond()) );
+			}
+		}
+		HashMap<Rider, LocalTime> sortedMap = riderTimes.entrySet().stream()
+				.sorted(Entry.comparingByValue())
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
+						(e1, e2) -> e1, LinkedHashMap::new));
+		int[] riderIds = new int[riders.size()];
+		Set<Rider> keys = sortedMap.keySet();
+		int i = 0;
+		for ( Rider key : keys ) {
+			riderIds[i] = key.getId();
+			i++;
+		}
+		return riderIds;
 	}
 
 	@Override
 	public int[] getRidersPointClassificationRank(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		int[] riderRanks = getRidersGeneralClassificationRank(raceId);
+		int[] riderPointsSortedByTime = getRidersPointsInRace(raceId);
+		Map<Rider, Integer> riderPoints = new HashMap<>();
+		for (int i=0; i<riderRanks.length;i++) {
+			riderPoints.put(getRiderById(riderRanks[i]),
+					riderPointsSortedByTime[i]);
+		}
+		HashMap<Rider, Integer> sortedMap = riderPoints.entrySet().stream()
+				.sorted(Entry.comparingByValue())
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
+						(e1, e2) -> e1, LinkedHashMap::new));
+		int[] riderIds = new int[riderRanks.length];
+		Set<Rider> keys = sortedMap.keySet();
+		int i = 0;
+		for ( Rider key : keys ) {
+			riderIds[i] = key.getId();
+			i++;
+		}
+		for (int j = 0; j < riderIds.length / 2; j++) {
+			int temp = riderIds[j];
+			riderIds[j] = riderIds[riderIds.length - 1 - j];
+			riderIds[riderIds.length - 1 - j] = temp;
+		}
+		return riderIds;
 	}
 
 	@Override
 	public int[] getRidersMountainPointClassificationRank(int raceId) throws IDNotRecognisedException {
-		// TODO Auto-generated method stub
-		return null;
+		int[] riderRanks = getRidersGeneralClassificationRank(raceId);
+		int[] riderPointsSortedByTime = getRidersMountainPointsInRace(raceId);
+		Map<Rider, Integer> riderPoints = new HashMap<>();
+		for (int i=0; i<riderRanks.length;i++) {
+			riderPoints.put(getRiderById(riderRanks[i]),
+					riderPointsSortedByTime[i]);
+		}
+		HashMap<Rider, Integer> sortedMap = riderPoints.entrySet().stream()
+				.sorted(Entry.comparingByValue())
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
+						(e1, e2) -> e1, LinkedHashMap::new));
+		int[] riderIds = new int[riderRanks.length];
+		Set<Rider> keys = sortedMap.keySet();
+		int i = 0;
+		for ( Rider key : keys ) {
+			riderIds[i] = key.getId();
+			i++;
+		}
+		return riderIds;
 	}
 
 	public ArrayList<Team> getTeamsList() {
