@@ -12,12 +12,6 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-/*
-	https://vle.exeter.ac.uk/pluginfile.php/2463307/mod_label/intro/coursework_v2.pdf
-
-    TODO Implement functionality for each method
- */
-
 public class CyclingPortal implements CyclingPortalInterface {
 
 	// pointsTable[type][rank]
@@ -252,6 +246,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
         getTeamByRiderId(riderId).removeRider(getRiderById(riderId));
+
 	}
 
 	@Override
@@ -295,13 +290,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public LocalTime getRiderAdjustedElapsedTimeInStage(int stageId, int riderId) throws IDNotRecognisedException {
 		Rider rider = getRiderById(riderId);
 		Stage stage = getStageById(stageId);
-		for (StageResult result : rider.getResults()) {
-			if (result.getStage() == stage) {
-				LocalTime[] checkpoints = result.getCheckpoints();
-				//TODO Adjusted elapsed time
-				return timeDifference(checkpoints[0], checkpoints[checkpoints.length-1]);
-			}
+		ArrayList<Rider> ridersInStage = getRidersInStage(stage);
+		LocalTime[] elapsedTimes = new LocalTime[ridersInStage.size()];
+		for (int i=0; i<elapsedTimes.length; i++) {
+			elapsedTimes[i] = getElapsedTime(stage, ridersInStage.get(i));
 		}
+		//TODO FINISH
 		return null;
 	}
 
@@ -509,18 +503,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public LocalTime[] getGeneralClassificationTimesInRace(int raceId) throws IDNotRecognisedException {
 		Race race = getRaceById(raceId);
 		Stage[] stages = race.getStages();
-		ArrayList<Rider> riders = new ArrayList<Rider>();
-		for (Stage stage : stages) {
-			for (Team team : teams) {
-				for (Rider rider : team.getRiders()) {
-					for (StageResult result : rider.getResults()) {
-						if (result.getStage().equals(stage) && !riders.contains(rider)) {
-							riders.add(rider);
-						}
-					}
-				}
-			}
-		}
+		ArrayList<Rider> riders = getRidersInRace(race);
 		Map<Rider, LocalTime> riderTimes = new HashMap<Rider, LocalTime>();
 		for (Rider rider : riders) {
 			riderTimes.put(rider, LocalTime.of(0, 0, 0));
@@ -546,18 +529,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int[] getRidersPointsInRace(int raceId) throws IDNotRecognisedException {
 		Race race = getRaceById(raceId);
 		Stage[] stages = race.getStages();
-		ArrayList<Rider> riders = new ArrayList<Rider>();
-		for (Stage stage : stages) {
-			for (Team team : teams) {
-				for (Rider rider : team.getRiders()) {
-					for (StageResult result : rider.getResults()) {
-						if (result.getStage().equals(stage) && !riders.contains(rider)) {
-							riders.add(rider);
-						}
-					}
-				}
-			}
-		}
+		ArrayList<Rider> riders = getRidersInRace(race);
 		Map<Rider, Integer> riderPoints = new HashMap<Rider, Integer>();
 		for (Rider rider : riders) {
 			riderPoints.put(rider, 0);
@@ -585,18 +557,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int[] getRidersMountainPointsInRace(int raceId) throws IDNotRecognisedException {
 		Race race = getRaceById(raceId);
 		Stage[] stages = race.getStages();
-		ArrayList<Rider> riders = new ArrayList<Rider>();
-		for (Stage stage : stages) {
-			for (Team team : teams) {
-				for (Rider rider : team.getRiders()) {
-					for (StageResult result : rider.getResults()) {
-						if (result.getStage().equals(stage) && !riders.contains(rider)) {
-							riders.add(rider);
-						}
-					}
-				}
-			}
-		}
+		ArrayList<Rider> riders = getRidersInRace(race);
 		Map<Rider, Integer> riderPoints = new HashMap<Rider, Integer>();
 		for (Rider rider : riders) {
 			riderPoints.put(rider, 0);
@@ -625,18 +586,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int[] getRidersGeneralClassificationRank(int raceId) throws IDNotRecognisedException {
 		Race race = getRaceById(raceId);
 		Stage[] stages = race.getStages();
-		ArrayList<Rider> riders = new ArrayList<Rider>();
-		for (Stage stage : stages) {
-			for (Team team : teams) {
-				for (Rider rider : team.getRiders()) {
-					for (StageResult result : rider.getResults()) {
-						if (result.getStage().equals(stage) && !riders.contains(rider)) {
-							riders.add(rider);
-						}
-					}
-				}
-			}
-		}
+		ArrayList<Rider> riders = getRidersInRace(race);
 		Map<Rider, LocalTime> riderTimes = new HashMap<Rider, LocalTime>();
 		for (Rider rider : riders) {
 			riderTimes.put(rider, LocalTime.of(0, 0, 0));
@@ -818,5 +768,41 @@ public class CyclingPortal implements CyclingPortalInterface {
 			}
 		}
 		throw new IDNotRecognisedException("No rider with an ID of " + id + " exists");
+	}
+
+	private LocalTime getElapsedTime(Stage stage, Rider rider) {
+		for (StageResult result : rider.getResults()) {
+			if (result.getStage() == stage) {
+				LocalTime[] checkpoints = result.getCheckpoints();
+				return timeDifference(checkpoints[0], checkpoints[checkpoints.length-1]);
+			}
+		}
+		return null;
+	}
+
+	private ArrayList<Rider> getRidersInStage(Stage stage) {
+		ArrayList<Rider> riders = new ArrayList<>();
+		for (Team team : teams) {
+			for (Rider rider : team.getRiders()) {
+				for (StageResult result : rider.getResults()) {
+					if (result.getStage().equals(stage)) {
+						riders.add(rider);
+					}
+				}
+			}
+		}
+		return riders;
+	}
+
+	private ArrayList<Rider> getRidersInRace(Race race) {
+		ArrayList<Rider> riders = new ArrayList<Rider>();
+		for (Stage stage : race.getStages()) {
+			ArrayList<Rider> ridersInStage = getRidersInStage(stage);
+			for (Rider rider : ridersInStage) {
+				if (!riders.contains(rider)) {
+					riders.add(rider);
+				}
+			}
+		}
 	}
 }
