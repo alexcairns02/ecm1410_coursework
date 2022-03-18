@@ -1,12 +1,10 @@
 package cycling;
 
 import java.util.ArrayList;
+import java.io.Serializable;
 
-public class Race {
-    /*TODO Variables:
-    generalClassificationTimes (dictionary thing?)*/
-
-    //Keeps track of no. of instances of Race so that IDs can be automatically generated
+class Race implements Serializable {
+    
     private static int numberOfRaces = 0;
 
     private int id;

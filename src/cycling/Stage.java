@@ -2,22 +2,10 @@ package cycling;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.io.Serializable;
 
-//TODO fill in document
-/**
-
-*/
-public class Stage {
-    /*
-    TODO Variables:
-    stageID (int)
-    stageName (str)
-    stageDescription (str)
-    stageLength (double)
-    stageStartTime (time?)
-    stageType (StageType)
-    segments ([] or <>)
-    */
+class Stage implements Serializable {
+    
     private static int noOfStages = 0;
 
     private int id;
@@ -61,6 +49,10 @@ public class Stage {
 
     public StageType getType() {
         return type;
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
     }
 
     public boolean isPrepared() {

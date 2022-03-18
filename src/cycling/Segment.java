@@ -1,6 +1,8 @@
 package cycling;
 
-public class Segment {
+import java.io.Serializable;
+
+class Segment implements Serializable {
     
     private static int noOfSegments = 0;
 

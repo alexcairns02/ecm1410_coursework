@@ -1,8 +1,10 @@
 package cycling;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Team {
+class Team implements Serializable {
+    
     private static int noOfTeams = 0;
 
     private int id;

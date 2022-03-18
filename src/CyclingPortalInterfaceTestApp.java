@@ -5,6 +5,7 @@ import cycling.InvalidNameException;
 import cycling.StageType;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 
 /**
@@ -42,8 +43,7 @@ public class CyclingPortalInterfaceTestApp {
 		} catch (InvalidNameException e) {
 			System.out.println(e);
 		} finally {
-			System.out.println(""+portal.getRaceIds().length);
-			System.out.println(Arrays.toString(portal.getRaceIds()));
+			assert (portal.getRaceIds().length == 3);
 		}
 
 		// Testing Stage Creation
@@ -51,12 +51,31 @@ public class CyclingPortalInterfaceTestApp {
 			portal.addStageToRace(1, "First stage", "The first stage", 10, LocalDateTime.now(), StageType.FLAT);
 			portal.addStageToRace(0, "First stage different race", "The first stage", 10, LocalDateTime.now(), StageType.MEDIUM_MOUNTAIN);
 			portal.addStageToRace(1, "Second stage", "The second stage", 10, LocalDateTime.now(), StageType.FLAT);
-			System.out.println(portal.viewRaceDetails(1));
-			System.out.println(Arrays.toString(portal.getRaceStages(1)));
+			int team1 = portal.createTeam("team1", "the first team");
+			portal.createRider(team1, "rider1", 1994);
+			portal.registerRiderResultsInStage(0, 0, LocalTime.of(1, 2, 15), LocalTime.of(1, 15, 23));
+			assert (portal.getRaceStages(0).length == 1);
+			assert (portal.getRaceStages(1).length == 2);
+			assert (portal.getTeams().length == 1);
+			assert (portal.getTeamRiders(0).length == 1);
 		} catch (Exception e) {
 			System.out.println(e);
 		}
 
-		//
+		// Testing serialisation methods
+		CyclingPortalInterface portal2 = new CyclingPortal();
+		try {
+			portal.saveCyclingPortal("portal.ser");
+			portal2.loadCyclingPortal("portal.ser");
+			assert (Arrays.toString(portal.getRaceIds()) == Arrays.toString(portal2.getRaceIds()));
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
+		try {
+			System.out.println(Arrays.toString(portal.getGeneralClassificationTimesInRace(1)));
+		} catch (Exception e) {
+			System.out.println(e);
+		}
 	}
 }

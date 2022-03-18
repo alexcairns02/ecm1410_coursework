@@ -1,11 +1,12 @@
 package cycling;
 
+import java.io.Serializable;
 import java.time.LocalTime;
 
 /**
  * A rider's result in a particular stage
  */
-public class StageResult {
+class StageResult implements Serializable {
 
     private static int totalResults = 0;
 

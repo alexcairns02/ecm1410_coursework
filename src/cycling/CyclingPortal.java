@@ -39,8 +39,10 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getRaceIds() {
+		// Initialise int[] of the same length as races ArrayList
         int[] raceIds = new int[races.size()];
         for (int i=0; i<races.size(); i++) {
+			// For each item in races, add this race's ID to raceIds
             raceIds[i] = races.get(i).getId();
         }
 		return raceIds;
@@ -48,15 +50,22 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int createRace(String name, String description) throws IllegalNameException, InvalidNameException {
+		// Race name input validation
         if (name == null) { throw new InvalidNameException("Race name cannot be null"); }
 		if (name.isEmpty()) { throw new InvalidNameException("Race name cannot be an empty string"); }
 		if (name.length() > 30) { throw new InvalidNameException("Race name cannot be greater than 30 characters"); }
         if (name.contains(" ")) { throw new InvalidNameException("Race name cannot contain white space"); }
+
         for (Race race : races) {
+			// Searches through races to find one which has this same name
             if (race.getName().equals(name)) {
+				// If the name already exists, exception thrown
                 throw new IllegalNameException("Race name " + name + " already exists");
             }
-        }
+
+		}
+
+		// Checks passed, race in instantiated and added to the list of races
         Race race = new Race(name, description);
         races.add(race);
 		return race.getId();
@@ -64,6 +73,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public String viewRaceDetails(int raceId) throws IDNotRecognisedException {
+		// Races have a method to return their details
         return getRaceById(raceId).getDetails();
 	}
 
@@ -80,21 +90,29 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int addStageToRace(int raceId, String stageName, String description, double length, LocalDateTime startTime, StageType type)
 			throws IDNotRecognisedException, IllegalNameException, InvalidNameException, InvalidLengthException {
+		// Stage name and length validation
         if (stageName == null) { throw new InvalidNameException("Stage name cannot be null"); }
 		if (stageName.isEmpty()) { throw new InvalidNameException("Stage name cannot be an empty string"); }
 		if (stageName.length() > 30) { throw new InvalidNameException("Stage name cannot be greater than 30 characters"); }
         if (length<5) { throw new InvalidLengthException("Stage length cannot be less than 5(km)"); }
+        if (stageName.contains(" ")) { throw new InvalidNameException("Stage name cannot contain white space"); }
+
         Race raceToAddTo = null;
         for (Race race : races) {
             for (Stage stage : race.getStages()) {
+				// Searches through stages to find one which has this same name
                 if (stage.getName().equals(stageName)) {
+					// If name already exists, exception thrown
                     throw new IllegalNameException("Stage name " + stageName + " already exists");
                 }
             }
+			// Using this loop to find the race with this ID instead of getRaceById() saves computation
             if (race.getId() == raceId) { raceToAddTo = race; }
         }
         if (raceToAddTo == null) { throw new IDNotRecognisedException("No race with an ID of " + Integer.toString(raceId) + " exists"); }
-        Stage stage = new Stage(stageName, description, length, startTime,
+        
+		// Checks passed, instantiates the stage and adds it to list of stages in race
+		Stage stage = new Stage(stageName, description, length, startTime,
 				type);
         raceToAddTo.addStage(stage);
         return stage.getId();
@@ -102,8 +120,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
+		// Find the correct Race object
         Race race = getRaceById(raceId);
+		//Retrieve its stages
         Stage[] stages = race.getStages();
+
+		// Convert array of Stage objects into array of corresponding IDs
         int[] stageIds = new int[stages.length];
         for (int i=0; i<stages.length; i++) {
             stageIds[i] = stages[i].getId();
@@ -199,6 +221,9 @@ public class CyclingPortal implements CyclingPortalInterface {
 		if (name == null) { throw new IllegalNameException("Team name cannot be null"); }
 		if (name.isEmpty()) { throw new IllegalNameException("Team name cannot be an empty string"); }
 		if (name.length() > 30) { throw new IllegalNameException("Team name cannot be greater than 30 characters"); }
+        if (name.contains(" ")) { throw new InvalidNameException("Team name cannot contain white space"); }
+
+
 		for (Team team : teams) {
 			if (team.getName() == name) {
 				throw new IllegalNameException("Team with name \"" + name + "\" already exists");
@@ -296,6 +321,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 			elapsedTimes[i] = getElapsedTime(stage, ridersInStage.get(i));
 		}
 		//TODO FINISH
+		// Return null if given rider does not exist in this stage
 		return null;
 	}
 
@@ -479,7 +505,6 @@ public class CyclingPortal implements CyclingPortalInterface {
 				teams = cyclingPortal.getTeamsList();
 				races = cyclingPortal.getRacesList();
 			}
-			// TODO: Handle case where obj is not a CyclingPortal but is an object
 		} finally {
 			ois.close();
 		}
@@ -804,5 +829,6 @@ public class CyclingPortal implements CyclingPortalInterface {
 				}
 			}
 		}
+		return riders;
 	}
 }
