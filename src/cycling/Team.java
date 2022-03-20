@@ -3,6 +3,11 @@ package cycling;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ * Team class. Represents a team in the cycling competition.
+ * 
+ * @author Joey Griffiths and Alexander Cairns
+ */
 class Team implements Serializable {
     
     private static int noOfTeams = 0;

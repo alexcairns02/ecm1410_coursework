@@ -12,6 +12,11 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+/**
+ * CyclingPortal class which implements CyclingPortalInterface. The
+ * no-argument constructor of this class initialises the CyclingPortal
+ * as an empty platform with no initial racing teams nor races within it.
+ */
 public class CyclingPortal implements CyclingPortalInterface {
 
 	// pointsTable[type][rank]
@@ -68,6 +73,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 		// Checks passed, race in instantiated and added to the list of races
         Race race = new Race(name, description);
         races.add(race);
+		assert (races.size() > 0);
 		return race.getId();
 	}
 
@@ -79,11 +85,13 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void removeRaceById(int raceId) throws IDNotRecognisedException {
+		// Finds Race object and removes it from list of races
 		races.remove(getRaceById(raceId));
 	}
 
 	@Override
 	public int getNumberOfStages(int raceId) throws IDNotRecognisedException {
+		// Finds Race object and uses its built in getNoOfStages() method
 		return getRaceById(raceId).getNoOfStages();
 	}
 
@@ -109,23 +117,24 @@ public class CyclingPortal implements CyclingPortalInterface {
 			// Using this loop to find the race with this ID instead of getRaceById() saves computation
             if (race.getId() == raceId) { raceToAddTo = race; }
         }
-        if (raceToAddTo == null) { throw new IDNotRecognisedException("No race with an ID of " + Integer.toString(raceId) + " exists"); }
+        if (raceToAddTo == null) {
+			throw new IDNotRecognisedException("No race with an ID of "+ Integer.toString(raceId) + " exists");
+		}
         
 		// Checks passed, instantiates the stage and adds it to list of stages in race
 		Stage stage = new Stage(stageName, description, length, startTime,
 				type);
         raceToAddTo.addStage(stage);
+		assert (raceToAddTo.getNoOfStages() > 0);
         return stage.getId();
 	}
 
 	@Override
 	public int[] getRaceStages(int raceId) throws IDNotRecognisedException {
-		// Find the correct Race object
-        Race race = getRaceById(raceId);
-		//Retrieve its stages
-        Stage[] stages = race.getStages();
+		// Finds the correct Race object and retrieves its stages
+        Stage[] stages = getRaceById(raceId).getStages();
 
-		// Convert array of Stage objects into array of corresponding IDs
+		// Converts array of Stage objects into array of corresponding IDs
         int[] stageIds = new int[stages.length];
         for (int i=0; i<stages.length; i++) {
             stageIds[i] = stages[i].getId();
@@ -135,11 +144,13 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public double getStageLength(int stageId) throws IDNotRecognisedException {
+		// Finds Stage object and returns its length
 		return getStageById(stageId).getLength();
 	}
 
 	@Override
 	public void removeStageById(int stageId) throws IDNotRecognisedException {
+		// Finds Race object and Stage object and uses the race's removeStage() method
 		getRaceByStageId(stageId).removeStage(getStageById(stageId));
 	}
 
@@ -313,14 +324,38 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public LocalTime getRiderAdjustedElapsedTimeInStage(int stageId, int riderId) throws IDNotRecognisedException {
-		Rider rider = getRiderById(riderId);
+		Rider riderToFind = getRiderById(riderId);
 		Stage stage = getStageById(stageId);
 		ArrayList<Rider> ridersInStage = getRidersInStage(stage);
-		LocalTime[] elapsedTimes = new LocalTime[ridersInStage.size()];
-		for (int i=0; i<elapsedTimes.length; i++) {
-			elapsedTimes[i] = getElapsedTime(stage, ridersInStage.get(i));
+		HashMap<Rider, LocalTime> ridersAndTimes = new HashMap<>();
+		for (Rider rider : ridersInStage) {
+			ridersAndTimes.put(rider, getElapsedTime(stage, rider));
 		}
-		//TODO FINISH
+		HashMap<Rider, LocalTime> sortedMap = sortRidersByTimes(ridersAndTimes);
+		Rider[] sortedRidersInStage = sortedMap.keySet().toArray(new Rider[ridersInStage.size()]);
+		LocalTime[] sortedTimes = sortedMap.values().toArray(new LocalTime[ridersInStage.size()]);
+		int streak = 0;
+		for (int i=0; i<sortedRidersInStage.length; i++) {
+			if (i > 0) {
+				LocalTime elapsedTime = sortedTimes[i];
+				LocalTime prevElapsedTime = sortedTimes[i-1];
+				long timeDifference = prevElapsedTime.until(elapsedTime, ChronoUnit.MILLIS);
+				assert (timeDifference >= 0);
+				if (timeDifference < 1000) {
+					streak++;
+				} else {
+					streak = 0;
+				}
+			}
+			if (sortedRidersInStage[i].equals(riderToFind)) {
+				if (streak == 0) {
+					return sortedTimes[i];
+				}
+				else {
+					return getElapsedTime(stage, sortedRidersInStage[i-streak]);
+				}
+			}
+		}
 		// Return null if given rider does not exist in this stage
 		return null;
 	}
@@ -352,10 +387,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 				}
 			}
 		}
-		HashMap<Rider, LocalTime> sortedMap = riderToResultMap.entrySet().stream()
-											.sorted(Entry.comparingByValue())
-											.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
-												(e1, e2) -> e1, LinkedHashMap::new));
+		HashMap<Rider, LocalTime> sortedMap = sortRidersByTimes(riderToResultMap);
 		int[] rankedRiders = new int[sortedMap.size()];
 		int i = 0;
 		for (Rider rider : sortedMap.keySet()) {
@@ -435,10 +467,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 					}
 				}
 			}
-			HashMap<Rider, LocalTime> sortedMap = resultToTimeMap.entrySet().stream()
-												.sorted(Entry.comparingByValue())
-												.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
-													(e1, e2) -> e1, LinkedHashMap::new));
+			HashMap<Rider, LocalTime> sortedMap = sortRidersByTimes(resultToTimeMap);
 			int a = 0;
 			for (Rider rider : sortedMap.keySet()) {
 				for (int b=0;b<8;b++) {
@@ -529,7 +558,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 		Race race = getRaceById(raceId);
 		Stage[] stages = race.getStages();
 		ArrayList<Rider> riders = getRidersInRace(race);
-		Map<Rider, LocalTime> riderTimes = new HashMap<Rider, LocalTime>();
+		HashMap<Rider, LocalTime> riderTimes = new HashMap<Rider, LocalTime>();
 		for (Rider rider : riders) {
 			riderTimes.put(rider, LocalTime.of(0, 0, 0));
 			for (Stage stage : stages) {
@@ -538,13 +567,11 @@ public class CyclingPortal implements CyclingPortalInterface {
 				riderTimes.replace(rider,
 						riderTimes.get(rider).plusHours(t.getHour())
 								.plusMinutes(t.getMinute())
-								.plusSeconds(t.getSecond()) );
+								.plusSeconds(t.getSecond())
+								.plusNanos(t.getNano()));
 			}
 		}
-		HashMap<Rider, LocalTime> sortedMap = riderTimes.entrySet().stream()
-				.sorted(Entry.comparingByValue())
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
-						(e1, e2) -> e1, LinkedHashMap::new));
+		HashMap<Rider, LocalTime> sortedMap = sortRidersByTimes(riderTimes);
 		LocalTime[] times = new LocalTime[riders.size()];
 		sortedMap.values().toArray(times);
 		return times;
@@ -612,7 +639,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 		Race race = getRaceById(raceId);
 		Stage[] stages = race.getStages();
 		ArrayList<Rider> riders = getRidersInRace(race);
-		Map<Rider, LocalTime> riderTimes = new HashMap<Rider, LocalTime>();
+		HashMap<Rider, LocalTime> riderTimes = new HashMap<Rider, LocalTime>();
 		for (Rider rider : riders) {
 			riderTimes.put(rider, LocalTime.of(0, 0, 0));
 			for (Stage stage : stages) {
@@ -624,10 +651,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 								.plusSeconds(t.getSecond()) );
 			}
 		}
-		HashMap<Rider, LocalTime> sortedMap = riderTimes.entrySet().stream()
-				.sorted(Entry.comparingByValue())
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
-						(e1, e2) -> e1, LinkedHashMap::new));
+		HashMap<Rider, LocalTime> sortedMap = sortRidersByTimes(riderTimes);
 		int[] riderIds = new int[riders.size()];
 		Set<Rider> keys = sortedMap.keySet();
 		int i = 0;
@@ -642,15 +666,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int[] getRidersPointClassificationRank(int raceId) throws IDNotRecognisedException {
 		int[] riderRanks = getRidersGeneralClassificationRank(raceId);
 		int[] riderPointsSortedByTime = getRidersPointsInRace(raceId);
-		Map<Rider, Integer> riderPoints = new HashMap<>();
+		HashMap<Rider, Integer> riderPoints = new HashMap<>();
 		for (int i=0; i<riderRanks.length;i++) {
 			riderPoints.put(getRiderById(riderRanks[i]),
 					riderPointsSortedByTime[i]);
 		}
-		HashMap<Rider, Integer> sortedMap = riderPoints.entrySet().stream()
-				.sorted(Entry.comparingByValue())
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
-						(e1, e2) -> e1, LinkedHashMap::new));
+		HashMap<Rider, Integer> sortedMap = sortRidersByPoints(riderPoints);
 		int[] riderIds = new int[riderRanks.length];
 		Set<Rider> keys = sortedMap.keySet();
 		int i = 0;
@@ -670,15 +691,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int[] getRidersMountainPointClassificationRank(int raceId) throws IDNotRecognisedException {
 		int[] riderRanks = getRidersGeneralClassificationRank(raceId);
 		int[] riderPointsSortedByTime = getRidersMountainPointsInRace(raceId);
-		Map<Rider, Integer> riderPoints = new HashMap<>();
+		HashMap<Rider, Integer> riderPoints = new HashMap<>();
 		for (int i=0; i<riderRanks.length;i++) {
 			riderPoints.put(getRiderById(riderRanks[i]),
 					riderPointsSortedByTime[i]);
 		}
-		HashMap<Rider, Integer> sortedMap = riderPoints.entrySet().stream()
-				.sorted(Entry.comparingByValue())
-				.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
-						(e1, e2) -> e1, LinkedHashMap::new));
+		HashMap<Rider, Integer> sortedMap = sortRidersByPoints(riderPoints);
 		int[] riderIds = new int[riderRanks.length];
 		Set<Rider> keys = sortedMap.keySet();
 		int i = 0;
@@ -698,13 +716,26 @@ public class CyclingPortal implements CyclingPortalInterface {
 	}
 
 	private LocalTime timeDifference(LocalTime time1, LocalTime time2) {
-		long elapsedTimeInSecs = time1.until(time2, ChronoUnit.SECONDS);
-		int hours = (int) elapsedTimeInSecs / 3600;
-		int remainder = (int) elapsedTimeInSecs - hours*3600;
-		int mins = remainder / 60;
-		remainder -= mins*60;
-		int secs = remainder;
-		return LocalTime.of(hours, mins, secs);
+		long elapsedTimeInMilliSecs = time1.until(time2, ChronoUnit.MILLIS);
+		int hours = (int) elapsedTimeInMilliSecs / 3600000;
+		int mins = (int) (elapsedTimeInMilliSecs % 3600000) / 60000;
+		int secs = (int) ((elapsedTimeInMilliSecs % 3600000) % 60000) / 1000;
+		int millis = (int) ((elapsedTimeInMilliSecs % 3600000) % 60000) % 1000;
+		return LocalTime.of(hours, mins, secs, millis);
+	}
+
+	private HashMap<Rider, LocalTime> sortRidersByTimes(HashMap<Rider, LocalTime> initalMap) {
+		return initalMap.entrySet().stream()
+				.sorted(Entry.comparingByValue())
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
+						(e1, e2) -> e1, LinkedHashMap::new));
+	}
+
+	private HashMap<Rider, Integer> sortRidersByPoints(HashMap<Rider, Integer> initalMap) {
+		return initalMap.entrySet().stream()
+				.sorted(Entry.comparingByValue())
+				.collect(Collectors.toMap(Entry::getKey, Entry::getValue,
+						(e1, e2) -> e1, LinkedHashMap::new));
 	}
 
     private Race getRaceById(int id) throws IDNotRecognisedException {
