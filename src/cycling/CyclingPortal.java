@@ -946,6 +946,22 @@ public class CyclingPortal implements CyclingPortalInterface {
         throw new IDNotRecognisedException("No stage with an ID of " + id + " exists");
     }
 
+	/**
+	 * Private method to find a Stage object based on the ID of a Segment object
+	 * inside the Stage.
+	 * <p>
+	 *     Iterates through the 'races' ArrayList, and again through the
+	 *     race's stages (through the 'getStages()' getter method), and again
+	 *     through the stage's segments (through the 'getSegments()' getter
+	 *     method) until a
+	 *     Segment matching the ID is found.
+	 * </p>
+	 * @param id The ID of the segment contained in the stage to be found.
+	 * @return A Stage object, corresponding to the Segment ID provided.
+	 * @throws IDNotRecognisedException If the ID does not match any Segments
+	 * in the system.
+	 *
+	 */
 	private Stage getStageBySegmentId(int id) throws IDNotRecognisedException {
 		for (Race race : races) {
 			for (Stage stage : race.getStages()) {
@@ -959,6 +975,20 @@ public class CyclingPortal implements CyclingPortalInterface {
 		throw new IDNotRecognisedException("No segment with an ID of " + id + " exists");
 	}
 
+	/**
+	 * Private method to find a Team object based on the ID of a Rider object
+	 * inside the Team.
+	 * <p>
+	 *     Iterates through the 'teams' ArrayList, and again through the
+	 *     team's riders (through the 'getRiders()' getter method), until a
+	 *     Rider matching the ID is found.
+	 * </p>
+	 * @param id The ID of the rider contained in the team to be found.
+	 * @return A Team object, corresponding to the Rider ID provided.
+	 * @throws IDNotRecognisedException If the ID does not match any Riders
+	 * in the system.
+	 *
+	 */
 	private Team getTeamByRiderId(int id) throws IDNotRecognisedException {
 		for (Team team : teams) {
 			for (Rider rider : team.getRiders()) {
@@ -970,6 +1000,13 @@ public class CyclingPortal implements CyclingPortalInterface {
 		throw new IDNotRecognisedException("No rider with an ID of " + id + " exists");
 	}
 
+	/**
+	 * Private method to calculate the elapsed time a rider took in a stage.
+	 * @param stage The stage in question.
+	 * @param rider The particular rider who's elapsed time we want to find.
+	 * @return A LocalTime object in the form HH:MM:SS:nn which represents
+	 * the elapsed time the rider took to complete the stage.
+	 */
 	private LocalTime getElapsedTime(Stage stage, Rider rider) {
 		StageResult result = getResultInStage(rider, stage);
 		if (result != null) {
@@ -980,6 +1017,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 		}
 	}
 
+	/**
+	 * Private method to return an ArrayList of riders in a particular stage.
+	 * @param stage The stage in question.
+	 * @return An ArrayList of Rider objects, all of which have results for
+	 * the stage in question.
+	 */
 	private ArrayList<Rider> getRidersInStage(Stage stage) {
 		ArrayList<Rider> riders = new ArrayList<>();
 		for (Team team : teams) {
@@ -992,6 +1035,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 		return riders;
 	}
 
+	/**
+	 * Private method to return an ArrayList of riders in a particular race.
+	 * @param race The race in question.
+	 * @return An ArrayList of Rider objects, all of which have results for
+	 * the race in question.
+	 */
 	private ArrayList<Rider> getRidersInRace(Race race) {
 		ArrayList<Rider> riders = new ArrayList<Rider>();
 		for (Stage stage : race.getStages()) {
