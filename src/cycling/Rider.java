@@ -41,6 +41,7 @@ class Rider implements Serializable {
      * Rider class constructor.<br>
      * Assigns a name, year of birth and automatically assigns an ID using
      * the number of instances of rider.
+     *
      * @param name The name of the rider.
      * @param yearOfBirth The year of birth of the rider.
      */
