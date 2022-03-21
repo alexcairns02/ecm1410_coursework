@@ -29,7 +29,7 @@ class Segment implements Serializable {
     private final double location;
 
     /**
-     * The type that this segment is.<br>
+     * The segment's type.<br>
      * Taken from the {@link SegmentType} enum.
      */
     private final SegmentType type;
