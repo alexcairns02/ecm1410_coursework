@@ -53,8 +53,8 @@ class Rider implements Serializable {
     }
 
     /**
-     * Method to reset the static variable noOfRiders. Used to reset the
-     * CyclingPortal so that IDs start from 0 again.
+     * Method to reset the static variable noOfRiders.<br>
+     * Used to reset the CyclingPortal so that IDs start from 0 again.
      */
     public static void resetNoOfRiders() {
         noOfRiders = 0;

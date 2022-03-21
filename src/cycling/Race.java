@@ -53,8 +53,8 @@ class Race implements Serializable {
     }
 
     /**
-     * Resets the static variable numberOfRaces. Used to reset the CyclingPortal
-     * so that IDs start from 0 again.
+     * Resets the static variable numberOfRaces.<br>
+     * Used to reset the CyclingPortal so that IDs start from 0 again.
      */
     public static void resetNoOfRaces() {
         numberOfRaces = 0;

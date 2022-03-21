@@ -77,8 +77,8 @@ class Segment implements Serializable {
     }
 
     /**
-     * Method to reset the static variable noOfSegments. Used to reset the
-     * CyclingPortal so that IDs start from 0 again.
+     * Method to reset the static variable noOfSegments.<br>
+     * Used to reset the CyclingPortal so that IDs start from 0 again.
      */
     public static void resetNoOfSegments() {
         noOfSegments = 0;
