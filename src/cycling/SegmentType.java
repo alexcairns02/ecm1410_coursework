@@ -41,8 +41,8 @@ public enum SegmentType {
 	C1,
 
 	/**
-	 * From the French term "Hors Categorie" (HC) meaning beyond categorisation. The
+	 * From the French term "Hors Categories" (HC) meaning beyond categorisation. The
 	 * toughest of the tough. The longest or steepest climbs, often both combined.
 	 */
-	HC;
+	HC
 }
