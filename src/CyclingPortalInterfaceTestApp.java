@@ -91,6 +91,9 @@ public class CyclingPortalInterfaceTestApp {
 		// Testing getGeneralClassificationTimesInRace()
 		try {
 			System.out.println(Arrays.toString(portal.getGeneralClassificationTimesInRace(1)));
+			System.out.println(Arrays.toString(portal.getRidersGeneralClassificationRank(1)));
+			System.out.println(Arrays.toString(portal.getRidersPointClassificationRank(1)));
+			System.out.println(Arrays.toString(portal.getRidersPointsInRace(1)));
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
 		}
