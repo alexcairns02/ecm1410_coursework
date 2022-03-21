@@ -52,19 +52,29 @@ public class CyclingPortalInterfaceTestApp {
 			portal.addStageToRace(1, "Firststage", "The first stage", 10, LocalDateTime.now(), StageType.FLAT);
 			portal.addStageToRace(1, "Secondstage", "The second stage", 15, LocalDateTime.now(), StageType.HIGH_MOUNTAIN);
 			portal.addCategorizedClimbToStage(1, 3.0, SegmentType.C1, 43.0, 2.0);
-
-			int team1 = portal.createTeam("team1", "the first team");
-			portal.createRider(team1, "rider1", 1994);
-			portal.registerRiderResultsInStage(0, 0, LocalTime.of(1, 2, 15), LocalTime.of(1, 15, 23));
-			portal.createRider(team1, "rider2", 1994);
-			portal.registerRiderResultsInStage(0, 1, LocalTime.of(1, 2, 15), LocalTime.of(1, 14, 01));
-			portal.registerRiderResultsInStage(1, 1, LocalTime.of(1, 2, 15), LocalTime.of(1, 14, 01), LocalTime.of(1, 18, 45));
-			portal.createRider(team1, "rider3", 1994);
-			portal.registerRiderResultsInStage(0, 2, LocalTime.of(1, 2, 15), LocalTime.of(1, 14, 25));
-			portal.registerRiderResultsInStage(1, 2, LocalTime.of(1, 2, 15), LocalTime.of(1, 14, 25), LocalTime.of(1, 17, 54));
+			portal.concludeStagePreparation(0);
+			portal.concludeStagePreparation(1);
 
 			assert (portal.getRaceStages(0).length == 0);
 			assert (portal.getRaceStages(1).length == 2);
+		} catch (Exception e) {
+			e.printStackTrace(System.out);
+		}
+
+		// Testing rider creation
+		try {
+			int team1 = portal.createTeam("team1", "the first team");
+
+			portal.createRider(team1, "rider1", 1994);
+			portal.registerRiderResultsInStage(0, 0, LocalTime.of(1, 2, 15), LocalTime.of(1, 15, 23));
+			portal.registerRiderResultsInStage(1, 0, LocalTime.of(0, 0, 0), LocalTime.of(0, 20, 15), LocalTime.of(0, 45, 13));
+			portal.createRider(team1, "rider2", 1994);
+			portal.registerRiderResultsInStage(0, 1, LocalTime.of(1, 2, 15), LocalTime.of(1, 14, 01));
+			portal.registerRiderResultsInStage(1, 1, LocalTime.of(0, 0, 0), LocalTime.of(0, 23, 43), LocalTime.of(0, 52, 24));
+			portal.createRider(team1, "rider3", 1994);
+			portal.registerRiderResultsInStage(0, 2, LocalTime.of(1, 2, 15), LocalTime.of(1, 14, 25));
+			portal.registerRiderResultsInStage(1, 2, LocalTime.of(0, 0, 0), LocalTime.of(0, 17, 36), LocalTime.of(0, 49, 2));
+			
 			assert (portal.getTeams().length == 1);
 			assert (portal.getTeamRiders(0).length == 3);
 		} catch (Exception e) {
