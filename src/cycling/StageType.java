@@ -27,6 +27,6 @@ public enum StageType {
 	/**
 	 * Used for time trials. 
 	 */
-	TT;
+	TT
 	
 }
