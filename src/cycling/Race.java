@@ -40,6 +40,7 @@ class Race implements Serializable {
     /**
      * Race class constructor. Initialises a new race with a name and description,
      * and automatically assigns an ID using the number of instances of Race.
+     *
      * @param name The name of the race.
      * @param description The race description.
      * 
