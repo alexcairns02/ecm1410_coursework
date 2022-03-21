@@ -707,14 +707,32 @@ public class CyclingPortal implements CyclingPortalInterface {
 		return riderIds;
 	}
 
+	/**
+	 * Public getter method to return a list of all teams stored in the
+	 * 'teams' ArrayList.
+	 * @return An ArrayList of team objects.
+	 */
 	public ArrayList<Team> getTeamsList() {
 		return teams;
 	}
 
+	/**
+	 * Public getter method to return a list of all races stored in the
+	 * 'races' ArrayList.
+	 * @return An ArrayList of race objects.
+	 */
 	public ArrayList<Race> getRacesList() {
 		return races;
 	}
 
+	/**
+	 * Private method to find the time difference between two local times,
+	 * outputting the result as a LocalTime object.
+	 * @param time1 LocalTime object.
+	 * @param time2 LocalTime object.
+	 * @return LocalTime object, in format HH:MM:SS:mm, representing
+	 * difference between time1 and time2.
+	 */
 	private LocalTime timeDifference(LocalTime time1, LocalTime time2) {
 		long elapsedTimeInMilliSecs = time1.until(time2, ChronoUnit.MILLIS);
 		int hours = (int) elapsedTimeInMilliSecs / 3600000;
@@ -724,6 +742,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 		return LocalTime.of(hours, mins, secs, millis);
 	}
 
+	/**
+	 * Private method to sort a HashMap of Rider : LocalTime by their
+	 * adjusted elapsed times (LocalTime).
+	 * @param initalMap The HashMap to be sorted.
+	 * @return A HashMap object sorted by the LocalTime value (descending).
+	 */
 	private HashMap<Rider, LocalTime> sortRidersByTimes(HashMap<Rider, LocalTime> initalMap) {
 		return initalMap.entrySet().stream()
 				.sorted(Entry.comparingByValue())
@@ -731,6 +755,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 						(e1, e2) -> e1, LinkedHashMap::new));
 	}
 
+	/**
+	 * Private method to sort a HashMap of Rider : Integer by the rider's
+	 * points (integer).
+	 * @param initalMap The HashMap to be sorted.
+	 * @return A HashMap object sorted by the integer value (descending).
+	 */
 	private HashMap<Rider, Integer> sortRidersByPoints(HashMap<Rider, Integer> initalMap) {
 		return initalMap.entrySet().stream()
 				.sorted(Entry.comparingByValue())
@@ -738,6 +768,18 @@ public class CyclingPortal implements CyclingPortalInterface {
 						(e1, e2) -> e1, LinkedHashMap::new));
 	}
 
+	/**
+	 * Private method to find a Race object based on its unique ID.
+	 * <p>
+	 *     Iterates through the 'races' ArrayList, checking each race's ID
+	 *     through the 'getId()' getter method, until the race matching the ID
+	 *     is found.
+	 * </p>
+	 * @param id The ID of the race to be found.
+	 * @return A Race object, corresponding to the unique ID provided.
+	 * @throws IDNotRecognisedException If the ID does not match any Race in
+	 * the system.
+	 */
     private Race getRaceById(int id) throws IDNotRecognisedException {
         for (Race race : races) {
 			if (race.getId() == id) {
@@ -747,6 +789,18 @@ public class CyclingPortal implements CyclingPortalInterface {
         throw new IDNotRecognisedException("No race with an ID of " + id + " exists");
     }
 
+	/**
+	 * Private method to find a Stage object based on its unique ID.
+	 * <p>
+	 *     Iterates through the 'races' ArrayList, and again through the
+	 *     race's Stages (through the 'getStages()' getter method), until the
+	 *     Stage matching the ID is found.
+	 * </p>
+	 * @param id The ID of the stage to be found.
+	 * @return A Stage object, corresponding to the unique ID provided.
+	 * @throws IDNotRecognisedException If the ID does not match any Stage in
+	 * the system.
+	 */
     private Stage getStageById(int id) throws IDNotRecognisedException {
         for (Race race : races) {
             for (Stage stage : race.getStages()) {
@@ -758,6 +812,19 @@ public class CyclingPortal implements CyclingPortalInterface {
         throw new IDNotRecognisedException("No stage with an ID of " + id + " exists");
     }
 
+	/**
+	 * Private method to find a Segment object based on its unique ID.
+	 * <p>
+	 *     Iterates through the 'races' ArrayList, and again through the
+	 *     race's Stages (through the 'getStages()' getter method), and again
+	 *     through the stage's Segments (through the 'getSegments()' getter
+	 *     method), until the Segment matching the ID is found.
+	 * </p>
+	 * @param id The ID of the segment to be found.
+	 * @return A Segment object, corresponding to the unique ID provided.
+	 * @throws IDNotRecognisedException If the ID does not match any Segment
+	 * in the system.
+	 */
 	private Segment getSegmentById(int id) throws IDNotRecognisedException {
 		for (Race race : races) {
 			for (Stage stage : race.getStages()) {
@@ -771,6 +838,17 @@ public class CyclingPortal implements CyclingPortalInterface {
 		throw new IDNotRecognisedException("No segment with an ID of " + id + " exists");
 	}
 
+	/**
+	 * Private method to find a Team object based on its unique ID.
+	 * <p>
+	 *     Iterates through the 'teams' ArrayList, until the Team matching
+	 *     the ID is found.
+	 * </p>
+	 * @param id The ID of the team to be found.
+	 * @return A Team object, corresponding to the unique ID provided.
+	 * @throws IDNotRecognisedException If the ID does not match any Team in
+	 * the system.
+	 */
 	private Team getTeamById(int id) throws IDNotRecognisedException {
 		for (Team team : teams) {
 			if (team.getId() == id) {
@@ -780,6 +858,18 @@ public class CyclingPortal implements CyclingPortalInterface {
 		throw new IDNotRecognisedException("No team with an ID of " + id + " exists");
 	}
 
+	/**
+	 * Private method to find a Rider object based on its unique ID.
+	 * <p>
+	 *     Iterates through the 'teams' ArrayList, and again through the
+	 *     team's riders (through the 'getRiders()' getter method), until the
+	 *     Rider matching the ID is found.
+	 * </p>
+	 * @param id The ID of the rider to be found.
+	 * @return A Rider object, corresponding to the unique ID provided.
+	 * @throws IDNotRecognisedException If the ID does not match any Rider in
+	 * the system.
+	 */
 	private Rider getRiderById(int id) throws IDNotRecognisedException {
 		for (Team team : teams) {
 			for (Rider rider : team.getRiders()) {
@@ -791,6 +881,19 @@ public class CyclingPortal implements CyclingPortalInterface {
 		throw new IDNotRecognisedException("No rider with an ID of " + id + " exists");
 	}
 
+	/**
+	 * Private method to find a Race object based on the ID of a Stage object
+	 * inside the race.
+	 * <p>
+	 *     Iterates through the 'races' ArrayList, and again through the
+	 *     race's stages (through the 'getStages()' getter method), until a
+	 *     Stage matching the ID is found.
+	 * </p>
+	 * @param id The ID of the stage contained in the race to be found.
+	 * @return A Race object, corresponding to the Stage ID provided.
+	 * @throws IDNotRecognisedException If the ID does not match any Stages
+	 * in the system.
+	 */
     private Race getRaceByStageId(int id) throws IDNotRecognisedException {
         for (Race race : races) {
             for (Stage stage : race.getStages()) {
