@@ -14,7 +14,8 @@ class Rider implements Serializable {
 
     /**
      * The number of instances of Rider, automatically incremented when the
-     * constructor is called. Used for allocation of IDs.
+     * constructor is called.<br>
+     * Used for allocation of IDs.
      */
     private static int noOfRiders = 0;
 

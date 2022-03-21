@@ -15,7 +15,8 @@ class Stage implements Serializable {
 
     /**
      * The number of instances of Stage, automatically incremented when the
-     * constructor is called. Used for allocation of IDs.
+     * constructor is called.<br>
+     * Used for allocation of IDs.
      */
     private static int noOfStages = 0;
 

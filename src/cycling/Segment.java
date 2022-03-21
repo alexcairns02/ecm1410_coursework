@@ -13,7 +13,8 @@ class Segment implements Serializable {
 
     /**
      * The number of instances of Segment, automatically incremented when the
-     * constructor is called. Used for allocation of IDs.
+     * constructor is called.<br>
+     * Used for allocation of IDs.
      */
     private static int noOfSegments = 0;
 
