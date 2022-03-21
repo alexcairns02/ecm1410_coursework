@@ -289,8 +289,10 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getTeams() {
+		// Initialises a new int[] to store team IDs
 		int[] teamIds = new int[teams.size()];
 		for (int i=0; i<teams.size(); i++) {
+			// Adds the ID of each team in the teams list to teamIds
 			teamIds[i] = teams.get(i).getId();
 		}
 		return teamIds;
@@ -298,9 +300,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getTeamRiders(int teamId) throws IDNotRecognisedException {
+		// Retrieves a Rider[] of all riders in the team
 		Rider[] riders = getTeamById(teamId).getRiders();
+		// Method needs to return an int[] of IDs
 		int[] riderIds = new int[riders.length];
 		for (int i=0; i<riders.length; i++) {
+			// Adds the ID of each rider to riderIds
 			riderIds[i] = riders[i].getId();
 		}
 		return riderIds;
@@ -309,8 +314,11 @@ public class CyclingPortal implements CyclingPortalInterface {
 	@Override
 	public int createRider(int teamID, String name, int yearOfBirth)
 			throws IDNotRecognisedException, IllegalArgumentException {
+		// Input validation checks
 		if (name == null) { throw new IllegalArgumentException("Rider name cannot be null"); }
 		if (yearOfBirth < 1900) { throw new IllegalArgumentException("Rider yearOfBirth cannot be less than 1900"); }
+
+		// If arguments are valid, new Rider is instantiated and added to the team specified
 		Rider rider = new Rider(name, yearOfBirth);
 		getTeamById(teamID).addRider(rider);
 		return rider.getId();
@@ -318,6 +326,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void removeRider(int riderId) throws IDNotRecognisedException {
+		// Finds the correct team and removes this rider from it
         getTeamByRiderId(riderId).removeRider(getRiderById(riderId));
 
 	}
@@ -327,30 +336,36 @@ public class CyclingPortal implements CyclingPortalInterface {
 			throws IDNotRecognisedException, DuplicatedResultException, InvalidCheckpointsException,
 			InvalidStageStateException {
 		Stage stage = getStageById(stageId);
+		Rider rider = getRiderById(riderId);
+		// Makes sure stage has finished preparation before results are registered
 		if (!stage.isPrepared()) {
 			throw new InvalidStageStateException("Stage is not 'waiting " +
 					"for results'");
 		}
+		// Checkpoints input validation
 		if (checkpoints.length != stage.getSegments().length+2) {
 			throw new InvalidCheckpointsException("Number of checkpoints " +
 					"must be number of segments + 2");
 		}
-		StageResult stageResult = new StageResult(stage,
-				checkpoints);
-		Rider rider = getRiderById(riderId);
+		// Rider can only have one StageResult per stage
 		if (getResultInStage(rider, stage) != null) {
 			throw new DuplicatedResultException("A result for this stage " +
 					"already exists");
 		}
+		// If arguments are valid, new StageResult is instantiated storing these checkpoints
+		// and is added to rider's results
+		StageResult stageResult = new StageResult(stage, checkpoints);
 		rider.addResult(stageResult);
 	}
 
 	@Override
 	public LocalTime[] getRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
+		// Fetches the StageResult that corresponds to this rider and stage
 		StageResult result = getResultInStage(getRiderById(riderId), getStageById(stageId));
 		if (result == null) {
 			throw new IDNotRecognisedException("Rider " + riderId + "does not have any results in stage " + stageId);
 		} else {
+			// Returns the array of checkpoints for the result
 			return result.getCheckpoints();
 		}
 	}
@@ -418,11 +433,13 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public void deleteRiderResultsInStage(int stageId, int riderId) throws IDNotRecognisedException {
+		// Retrieves the Rider object and the StageResult that corresponds to it and this stage
 		Rider rider = getRiderById(riderId);
 		StageResult result = getResultInStage(rider, getStageById(stageId));
 		if (result == null) {
 			throw new IDNotRecognisedException("Rider " + riderId + "does not have any results in stage " + stageId);
 		} else {
+			// Removes the result if it exists in the stage
 			rider.removeResult(result);
 		}
 	}
@@ -452,9 +469,12 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public LocalTime[] getRankedAdjustedElapsedTimesInStage(int stageId) throws IDNotRecognisedException {
+		// Retrieves an int[] of ranked rider IDs
 		int[] rankedRiderIds = getRidersRankInStage(stageId);
 		LocalTime[] rankedTimes = new LocalTime[rankedRiderIds.length];
 		for (int i=0;i<rankedRiderIds.length;i++) {
+			// Retrieves the adjusted elapsed time for each rider in the stage and adds it
+			// to the ranked array of times
 			rankedTimes[i] = getRiderAdjustedElapsedTimeInStage(stageId, rankedRiderIds[i]);
 		}
 		return rankedTimes;
