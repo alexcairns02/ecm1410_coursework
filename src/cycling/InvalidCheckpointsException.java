@@ -1,7 +1,7 @@
 package cycling;
 
 /**
- * Each race result should contains the times for each segment (mountain and
+ * Each race result should contain the times for each segment (mountain and
  * sprint) within a stage, plus the start time and the finish time. The list of checkpoints must
  * follow its chronological sequence, i.e., checkpoint_i {@literal <=} checkpoint_i+1.
  * 
