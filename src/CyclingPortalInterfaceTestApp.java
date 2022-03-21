@@ -2,6 +2,7 @@ import cycling.CyclingPortal;
 import cycling.CyclingPortalInterface;
 import cycling.IllegalNameException;
 import cycling.InvalidNameException;
+import cycling.SegmentType;
 import cycling.StageType;
 
 import java.time.LocalDateTime;
@@ -49,19 +50,23 @@ public class CyclingPortalInterfaceTestApp {
 		// Testing Stage Creation
 		try {
 			portal.addStageToRace(1, "Firststage", "The first stage", 10, LocalDateTime.now(), StageType.FLAT);
-			//portal.addStageToRace(0, "Firststagerace0", "The first stage", 10, LocalDateTime.now(), StageType.MEDIUM_MOUNTAIN);
-			//portal.addStageToRace(1, "Secondstage", "The second stage", 10, LocalDateTime.now(), StageType.FLAT);
+			portal.addStageToRace(1, "Secondstage", "The second stage", 15, LocalDateTime.now(), StageType.HIGH_MOUNTAIN);
+			portal.addCategorizedClimbToStage(1, 3.0, SegmentType.C1, 43.0, 2.0);
+
 			int team1 = portal.createTeam("team1", "the first team");
 			portal.createRider(team1, "rider1", 1994);
 			portal.registerRiderResultsInStage(0, 0, LocalTime.of(1, 2, 15), LocalTime.of(1, 15, 23));
 			portal.createRider(team1, "rider2", 1994);
 			portal.registerRiderResultsInStage(0, 1, LocalTime.of(1, 2, 15), LocalTime.of(1, 14, 01));
+			portal.registerRiderResultsInStage(1, 1, LocalTime.of(1, 2, 15), LocalTime.of(1, 14, 01), LocalTime.of(1, 18, 45));
 			portal.createRider(team1, "rider3", 1994);
 			portal.registerRiderResultsInStage(0, 2, LocalTime.of(1, 2, 15), LocalTime.of(1, 14, 25));
-			assert (portal.getRaceStages(0).length == 1);
+			portal.registerRiderResultsInStage(1, 2, LocalTime.of(1, 2, 15), LocalTime.of(1, 14, 25), LocalTime.of(1, 17, 54));
+
+			assert (portal.getRaceStages(0).length == 0);
 			assert (portal.getRaceStages(1).length == 2);
 			assert (portal.getTeams().length == 1);
-			assert (portal.getTeamRiders(0).length == 1);
+			assert (portal.getTeamRiders(0).length == 3);
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
 		}
@@ -71,7 +76,7 @@ public class CyclingPortalInterfaceTestApp {
 		try {
 			portal.saveCyclingPortal("portal.ser");
 			portal2.loadCyclingPortal("portal.ser");
-			assert (Arrays.toString(portal.getRaceIds()) == Arrays.toString(portal2.getRaceIds()));
+			assert (Arrays.toString(portal.getRaceIds()).equals(Arrays.toString(portal2.getRaceIds())));
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
 		}
@@ -82,18 +87,20 @@ public class CyclingPortalInterfaceTestApp {
 			int id1 = portal.createRider(team2, "team2rider1", 1994);
 			portal.registerRiderResultsInStage(0, id1, LocalTime.of(1, 2, 15), LocalTime.of(1, 15, 22, 500000000));
 			int id2 = portal.createRider(team2, "team2rider2", 1994);
-			portal.registerRiderResultsInStage(0, id2, LocalTime.of(1, 2, 15), LocalTime.of(1, 15, 23, 888888888));
-			assert (portal.getRiderAdjustedElapsedTimeInStage(0, id1) == portal.getRiderAdjustedElapsedTimeInStage(0, id2));
+			portal.registerRiderResultsInStage(0, id2, LocalTime.of(1, 2, 15), LocalTime.of(1, 15, 23, 800000000));
+			assert (portal.getRiderAdjustedElapsedTimeInStage(0, id1).equals(portal.getRiderAdjustedElapsedTimeInStage(0, id2)));
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
 		}
 
-		// Testing getGeneralClassificationTimesInRace()
+		// Testing race results
 		try {
 			System.out.println(Arrays.toString(portal.getGeneralClassificationTimesInRace(1)));
 			System.out.println(Arrays.toString(portal.getRidersGeneralClassificationRank(1)));
-			System.out.println(Arrays.toString(portal.getRidersPointClassificationRank(1)));
 			System.out.println(Arrays.toString(portal.getRidersPointsInRace(1)));
+			System.out.println(Arrays.toString(portal.getRidersPointClassificationRank(1)));
+			System.out.println(Arrays.toString(portal.getRidersMountainPointsInRace(1)));
+			System.out.println(Arrays.toString(portal.getRidersMountainPointClassificationRank(1)));
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
 		}
