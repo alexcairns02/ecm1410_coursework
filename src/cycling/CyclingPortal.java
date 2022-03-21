@@ -141,7 +141,7 @@ public class CyclingPortal implements CyclingPortalInterface {
             if (race.getId() == raceId) { raceToAddTo = race; }
         }
         if (raceToAddTo == null) {
-			throw new IDNotRecognisedException("No race with an ID of "+ Integer.toString(raceId) + " exists");
+			throw new IDNotRecognisedException("No race with an ID of "+ raceId + " exists");
 		}
         
 		// Checks passed, instantiates the stage and adds it to list of stages in race
