@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.io.Serializable;
 
 /**
- * Rider class. Represents a single rider in the cycling competition.
+ * Rider class.<br>
+ * Represents a single rider in the cycling competition.
  *
  * @author Joey Griffiths & Alexander Cairns
  *

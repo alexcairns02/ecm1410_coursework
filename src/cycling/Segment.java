@@ -3,7 +3,8 @@ package cycling;
 import java.io.Serializable;
 
 /**
- * Segment class. Represents a single segment in the cycling competition.
+ * Segment class.<br>
+ * Represents a single segment in the cycling competition.
  *
  * @author Joey Griffiths & Alexander Cairns
  *

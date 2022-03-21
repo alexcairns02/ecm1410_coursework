@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.io.Serializable;
 
 /**
- * Race class. Represents a single race in the cycling competition.
+ * Race class.<br>
+ * Represents a single race in the cycling competition.
  *
  * @author Joey Griffiths & Alexander Cairns
  *
