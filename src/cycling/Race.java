@@ -31,7 +31,7 @@ class Race implements Serializable {
     /**
      * The race description.
      */
-    private String description;
+    private final String description;
 
     /**
      * The list of stages included in the race.
