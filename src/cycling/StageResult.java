@@ -7,7 +7,7 @@ import java.time.LocalTime;
  * StageResult class.<br>
  * Represents a single StageResult in the cycling competition.
  *
- * @author Joey Griffiths & Alexander Cairns
+ * @author Joey Griffiths and Alexander Cairns
  *
  */
 class StageResult implements Serializable {

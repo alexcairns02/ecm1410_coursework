@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * Team class.<br>
  * Represents a team in the cycling competition.
  * 
- * @author Joey Griffiths & Alexander Cairns
+ * @author Joey Griffiths and Alexander Cairns
  */
 class Team implements Serializable {
 

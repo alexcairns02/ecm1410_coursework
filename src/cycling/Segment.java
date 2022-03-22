@@ -6,7 +6,7 @@ import java.io.Serializable;
  * Segment class.<br>
  * Represents a single segment in the cycling competition.
  *
- * @author Joey Griffiths & Alexander Cairns
+ * @author Joey Griffiths and Alexander Cairns
  *
  */
 class Segment implements Serializable {

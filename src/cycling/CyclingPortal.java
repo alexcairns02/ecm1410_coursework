@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  * </p>
  *
  *
- * @author Joey Griffiths & Alexander Cairns
+ * @author Joey Griffiths and Alexander Cairns
  *
  */
 public class CyclingPortal implements CyclingPortalInterface {

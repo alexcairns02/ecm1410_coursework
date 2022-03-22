@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Race class.<br>
  * Represents a single race in the cycling competition.
  *
- * @author Joey Griffiths & Alexander Cairns
+ * @author Joey Griffiths and Alexander Cairns
  *
  */
 class Race implements Serializable {

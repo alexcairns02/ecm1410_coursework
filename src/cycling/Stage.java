@@ -8,7 +8,7 @@ import java.io.Serializable;
  * Stage class.<br>
  * Represents a single stage in the cycling competition.
  *
- * @author Joey Griffiths & Alexander Cairns
+ * @author Joey Griffiths and Alexander Cairns
  *
  */
 class Stage implements Serializable {
