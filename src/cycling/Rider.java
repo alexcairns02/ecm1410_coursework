@@ -7,7 +7,7 @@ import java.io.Serializable;
  * Rider class.<br>
  * Represents a single rider in the cycling competition.
  *
- * @author Joey Griffiths & Alexander Cairns
+ * @author Joey Griffiths and Alexander Cairns
  *
  */
 class Rider implements Serializable {
