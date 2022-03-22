@@ -81,16 +81,6 @@ public class CyclingPortalInterfaceTestApp {
 			e.printStackTrace(System.out);
 		}
 
-		// Testing serialisation methods
-		CyclingPortalInterface portal2 = new CyclingPortal();
-		try {
-			portal.saveCyclingPortal("portal.ser");
-			portal2.loadCyclingPortal("portal.ser");
-			assert (Arrays.toString(portal.getRaceIds()).equals(Arrays.toString(portal2.getRaceIds())));
-		} catch (Exception e) {
-			e.printStackTrace(System.out);
-		}
-
 		// Testing getAdjustedElapsedTimes()
 		try {
 			int team2 = portal.createTeam("team2", "the second team");
@@ -111,6 +101,16 @@ public class CyclingPortalInterfaceTestApp {
 			System.out.println(Arrays.toString(portal.getRidersPointClassificationRank(1)));
 			System.out.println(Arrays.toString(portal.getRidersMountainPointsInRace(1)));
 			System.out.println(Arrays.toString(portal.getRidersMountainPointClassificationRank(1)));
+		} catch (Exception e) {
+			e.printStackTrace(System.out);
+		}
+
+		// Testing serialisation methods
+		CyclingPortalInterface portal2 = new CyclingPortal();
+		try {
+			portal.saveCyclingPortal("portal.ser");
+			portal2.loadCyclingPortal("portal.ser");
+			assert (Arrays.toString(portal.getRaceIds()).equals(Arrays.toString(portal2.getRaceIds())));
 		} catch (Exception e) {
 			e.printStackTrace(System.out);
 		}

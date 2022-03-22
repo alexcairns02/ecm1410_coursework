@@ -156,10 +156,23 @@ class Stage implements Serializable {
     /**
      * Method to add a Segment object to the 'segments' ArrayList.
      *
-     * @param segment Segment object to be added to the stage.
+     * @param segmentToAdd Segment object to be added to the stage.
      */
-    public void addSegment(Segment segment) {
-        segments.add(segment);
+    public void addSegment(Segment segmentToAdd) {
+        // Finds the position to add the segment to in the list so that they are
+        // ordered by location in the stage
+        int i = 0;
+        for (Segment segment : segments) {
+            if (segmentToAdd.getLocation() <= segment.getLocation()) {
+                // Checks all segments and if the segment to add is not further in the stage,
+                // the segment is added behind this segment in the list
+                segments.add(i, segmentToAdd);
+                return;
+            }
+            i++;
+        }
+        // If the segment to add is the furthest in the stage, it is added to the end
+        segments.add(segmentToAdd);
     }
 
     /**
