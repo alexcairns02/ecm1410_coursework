@@ -446,21 +446,30 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getRidersRankInStage(int stageId) throws IDNotRecognisedException {
+		// HashMap to associate riders with their adjusted elapsed times is initialised
 		HashMap<Rider, LocalTime> riderToResultMap = new HashMap<Rider, LocalTime>();
 		Stage stage = getStageById(stageId);
-		for (Team team : teams) {
-			for (Rider rider : team.getRiders()) {
-				StageResult result = getResultInStage(rider, stage);
-				if (result != null) {
-					LocalTime elapsedTime = getRiderAdjustedElapsedTimeInStage(stageId, rider.getId());
-					riderToResultMap.put(rider, elapsedTime);
-				}
+
+		for (Rider rider : getRidersInStage(stage)) {
+			// Finds the StageResult for each rider in this stage
+			StageResult result = getResultInStage(rider, stage);
+			if (result != null) {
+				// If the rider is in this stage, their adjusted elapsed time is retrieved
+				// And associated with them in the HashMap
+				LocalTime elapsedTime = getRiderAdjustedElapsedTimeInStage(stageId, rider.getId());
+				riderToResultMap.put(rider, elapsedTime);
 			}
 		}
+
+
+		// The hashmap is sorted so that riders will be order of their ranking
 		HashMap<Rider, LocalTime> sortedMap = sortRidersByTimes(riderToResultMap);
+
+		// The method needs to return an int[] of IDs, so one is initialised
 		int[] rankedRiders = new int[sortedMap.size()];
 		int i = 0;
 		for (Rider rider : sortedMap.keySet()) {
+			// Each rider's ID from the sorted HashMap is added to the int[] in order
 			rankedRiders[i] = rider.getId();
 			i++;
 		}
@@ -513,32 +522,56 @@ public class CyclingPortal implements CyclingPortalInterface {
 	public int[] getRidersMountainPointsInStage(int stageId) throws IDNotRecognisedException {
 		Stage stage = getStageById(stageId);
 		Segment[] segments = stage.getSegments();
+		// Ranked list of rider IDs in the stage
 		int[] ridersRanks = getRidersRankInStage(stageId);
+		// Ranked list of Rider objects in the stage
 		Rider[] ridersInStage = new Rider[ridersRanks.length];
 		for (int i=0;i<ridersInStage.length;i++) {
+			// Adds the Rider object for each ID to the array
 			ridersInStage[i] = getRiderById(ridersRanks[i]);
 		}
+
+		// Initalises an array of points for each rider in the stage, starting with 0 for all
 		int[] mountainPoints = new int[ridersInStage.length];
 		Arrays.fill(mountainPoints, 0);
+
 		for (int i=0;i<segments.length;i++) {
 			SegmentType type = segments[i].getType();
 			if (type == SegmentType.SPRINT) {
+				// Sprint segments are ignored when calculating points
 				continue;
 			}
+
+			// HashMap to associate riders with their segment time for this segment
 			HashMap<Rider, LocalTime> resultToTimeMap = new HashMap<Rider, LocalTime>();
 			for (Rider rider : ridersInStage) {
 				StageResult result = getResultInStage(rider, stage);
 				if (result != null) {
+					// Segment time is the time difference between the rider reaching the
+					// associated checkpoint with the segment and the following checkpoint
 					LocalTime[] checkpoints = result.getCheckpoints();
+					assert (checkpoints.length == segments.length + 2);
 					LocalTime segmentTime = timeDifference(checkpoints[i], checkpoints[i+1]);
 					resultToTimeMap.put(rider, segmentTime);
 				}
 			}
+
+			// Sorts this segments HashMap based on values (segment times)
 			HashMap<Rider, LocalTime> sortedMap = sortRidersByTimes(resultToTimeMap);
+
+			// The rank of the current rider in this segment for each rider
 			int a = 0;
 			for (Rider rider : sortedMap.keySet()) {
+				// Only checks the first 8 riders in the segment, as the others will
+				// recieve no points for this segment
+				if (a > 7) { break; }
+
 				for (int b=0;b<8;b++) {
+					// b represents the position of the rider in the final points array
 					if (ridersInStage[b].equals(rider)) {
+						// Where the rider in the segment matches up with the rider in the stage,
+						// the rider's total points is incremented by the points for this segment
+						// which is looked up in the points table, based on rank and segment type
 						switch (type) {
 							case C4:
 								mountainPoints[b] += mountainPointsTable[a][0];
@@ -717,30 +750,49 @@ public class CyclingPortal implements CyclingPortalInterface {
 		Race race = getRaceById(raceId);
 		Stage[] stages = race.getStages();
 		ArrayList<Rider> riders = getRidersInRace(race);
-		Map<Rider, Integer> riderPoints = new HashMap<Rider, Integer>();
+		// HashMap to associatie riders in the race and their total points in the race
+		HashMap<Rider, Integer> riderPoints = new HashMap<Rider, Integer>();
+
 		for (Rider rider : riders) {
+			// Adds each rider and an inital value of 0 points to the HashMap
 			riderPoints.put(rider, 0);
 			for (Stage stage : stages) {
 				if (getResultInStage(rider, stage) != null) {
+					// For each stage in the race, retrieves the riders ranks if they are in the stage
+					// (riders in a race should have results in all stages in the race)
 					int[] ranks = getRidersRankInStage(stage.getId());
-					int index = 0;
+
+					// The index of the current rider in the array of ranks for the stage
+					int index = -1;
 					for (int i=0; i<ranks.length; i++) {
 						if (ranks[i] == rider.getId()) {
+							// When the ID in ranks that matches with this current rider is found,
+							// the index is assigned and the loop is broken out of
 							index = i;
+							break;
 						}
 					}
+					assert (index != -1);
+
+					// Finds all the riders' mountain points in this stage
 					int[] pointsArr = getRidersMountainPointsInStage(stage.getId());
 					int points = 0;
 					if (pointsArr.length > 0) {
+						// The current rider's points in this stage are found
 						points = pointsArr[index];
 					}
+					// Rider's total points for the race is incremented by their points in this stage
 					riderPoints.replace(rider, riderPoints.get(rider) + points);
 				}
 			}
 		}
+
+		// Method needs to return an int[] of points, so one is initialised
 		int[] sortedPoints = new int[riders.size()];
+		// Points need to be sorted by total elapsed times, so these are retrieved
 		int[] riderRanks = getRidersGeneralClassificationRank(raceId);
 		for ( int i=0; i<riderRanks.length; i++ ) {
+			// Adds the points of each rider to the points array, ordered by general classification rank
 			sortedPoints[i] = riderPoints.get(getRiderById(riderRanks[i]));
 		}
 		return sortedPoints;
@@ -751,13 +803,19 @@ public class CyclingPortal implements CyclingPortalInterface {
 		Race race = getRaceById(raceId);
 		Stage[] stages = race.getStages();
 		ArrayList<Rider> riders = getRidersInRace(race);
+		// HashMap to associate riders with their total adjusted elapsed times
 		HashMap<Rider, LocalTime> riderTimes = new HashMap<Rider, LocalTime>();
+		
 		for (Rider rider : riders) {
+			// Adds each rider in the race to the HashMap, initialising their time as 0:0:0
 			riderTimes.put(rider, LocalTime.of(0, 0, 0));
 			for (Stage stage : stages) {
+				// Calculates the adjusted elapsed time for each stage for this rider
 				LocalTime t = getRiderAdjustedElapsedTimeInStage(stage.getId(),
 						rider.getId());
 				if (t != null) {
+					// If the rider has a result in this stage, their total time is incremented
+					// by the adjusted elapsed time in this stage
 					riderTimes.replace(rider,
 							riderTimes.get(rider).plusHours(t.getHour())
 									.plusMinutes(t.getMinute())
@@ -765,11 +823,15 @@ public class CyclingPortal implements CyclingPortalInterface {
 				}
 			}
 		}
+
+		// The HashMap is sorted by values (total elapsed times)
 		HashMap<Rider, LocalTime> sortedMap = sortRidersByTimes(riderTimes);
+
+		// The method needs to return an int[] of IDs, so one is initialised
 		int[] riderIds = new int[riders.size()];
-		Set<Rider> keys = sortedMap.keySet();
 		int i = 0;
-		for (Rider key : keys) {
+		for (Rider key : sortedMap.keySet()) {
+			// The ID of each rider in the sorted HashMap is added to the int[] in order
 			riderIds[i] = key.getId();
 			i++;
 		}
@@ -798,10 +860,9 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 		// The method needs to return an int[], so one is initialised
 		int[] riderIds = new int[riderRanks.length];
-		Set<Rider> keys = sortedMap.keySet();
 		int i = 0;
-		for ( Rider key : keys ) {
-			// Finds each key in the sorted list (the rider), and adds its ID to the int[]
+		for ( Rider key : sortedMap.keySet() ) {
+			// Finds each key in the sorted HashMap (the rider), and adds its ID to the int[]
 			riderIds[i] = key.getId();
 			i++;
 		}
@@ -813,21 +874,32 @@ public class CyclingPortal implements CyclingPortalInterface {
 
 	@Override
 	public int[] getRidersMountainPointClassificationRank(int raceId) throws IDNotRecognisedException {
+		// These two arrays associate rider IDs with their mountain points in the race
 		int[] riderRanks = getRidersGeneralClassificationRank(raceId);
 		int[] riderPointsSortedByTime = getRidersMountainPointsInRace(raceId);
+
+		// HashMap to associate riders with their total mountain points in the race
 		HashMap<Rider, Integer> riderPoints = new HashMap<>();
+
 		for (int i=0; i<riderRanks.length;i++) {
+			// Adds each rider in the race and their associated mountain points to the HashMap
 			riderPoints.put(getRiderById(riderRanks[i]),
 					riderPointsSortedByTime[i]);
 		}
+
+		// The HashMap is sorted by values (total mountain points)
 		HashMap<Rider, Integer> sortedMap = sortRidersByPoints(riderPoints);
+
+		// The method needs to return an int[] of rider IDs, so one is initialised
 		int[] riderIds = new int[riderRanks.length];
-		Set<Rider> keys = sortedMap.keySet();
 		int i = 0;
-		for ( Rider key : keys ) {
+		for ( Rider key : sortedMap.keySet() ) {
+			// Finds each key in the sorted HashMap (the rider), and adds its ID to the int[]
 			riderIds[i] = key.getId();
 			i++;
 		}
+		
+		// The array needs to be in descending order, so it is reversed
 		reverseArray(riderIds);
 		return riderIds;
 	}
