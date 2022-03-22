@@ -1019,7 +1019,7 @@ public class CyclingPortal implements CyclingPortalInterface {
 	 * Private method to calculate the points a rider obtained from
 	 * immediate sprints in a stage.
 	 * 
-	 * @param rider The rider in question.
+	 * @param riderToFind The rider in question.
 	 * @param stage The stage in question.
 	 * @return An int representing the number of points obtained in the stage.
 	 */
